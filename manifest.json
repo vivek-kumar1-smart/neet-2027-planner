@@ -1,21 +1,25 @@
+
 {
+  "id": "/neet-2027-planner/",
   "name": "NEET 2027 Command Center",
   "short_name": "NEET Planner",
   "start_url": "/neet-2027-planner/",
+  "scope": "/neet-2027-planner/",
   "display": "standalone",
   "background_color": "#0f172a",
   "theme_color": "#0f172a",
   "icons": [
     {
-      "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/44/Icon_-_Target.svg/512px-Icon_-_Target.svg.png",
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
-    },
-    {
-      "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/44/Icon_-_Target.svg/192px-Icon_-_Target.svg.png",
-      "sizes": "192x192",
-      "type": "image/png"
     }
   ]
 }
