@@ -1,402 +1,1541 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NEET 2027 Command Center</title>
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#0f172a">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: #0f172a; }
-        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #475569; }
-        body { background-color: #0f172a; color: #f8fafc; font-family: system-ui, -apple-system, sans-serif; }
-        input[type="time"], input[type="number"] { color-scheme: dark; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0f172a">
+<link rel="manifest" href="manifest.json">
+<title>Universal Command Center</title>
+
+<style>
+:root{
+ --bg:#0f172a;--panel:#1e293b;--panel2:#111c30;
+ --border:#334155;--text:#f8fafc;--muted:#94a3b8;
+ --blue:#2563eb;--green:#059669;--orange:#c2410c;
+ --red:#991b1b;--purple:#6d28d9;
+}
+*{box-sizing:border-box}
+body{
+ margin:0;background:var(--bg);color:var(--text);
+ font-family:system-ui,-apple-system,sans-serif;
+}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+header{
+ position:sticky;top:0;z-index:20;
+ background:#0b1220;border-bottom:1px solid var(--border);
+ padding:12px;
+}
+.header-inner,.nav,.main{
+ max-width:1100px;margin:auto;
+}
+.header-inner{
+ display:flex;justify-content:space-between;
+ align-items:center;gap:12px;flex-wrap:wrap;
+}
+h1{font-size:19px;margin:0;font-weight:850}
+.subtitle{font-size:12px;color:var(--muted);margin-top:4px}
+.nav{
+ display:flex;gap:7px;overflow-x:auto;
+ padding-top:12px;
+}
+.main{padding:16px;max-width:1100px}
+.tab,.btn,.btn2,.danger{
+ border:0;border-radius:8px;padding:10px 13px;
+ color:white;font-weight:650;white-space:nowrap;
+}
+.tab{background:#263449}
+.tab.active,.btn{background:var(--blue)}
+.btn2{background:#334155}
+.danger{background:#991b1b}
+.card{
+ background:var(--panel);border:1px solid var(--border);
+ border-radius:12px;padding:15px;margin-bottom:13px;
+}
+.grid{display:grid;gap:12px}
+.grid2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.grid3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.field{
+ width:100%;min-width:0;background:#0f172a;color:white;
+ border:1px solid #475569;border-radius:7px;padding:10px;
+}
+label{display:block;font-size:13px;color:#cbd5e1}
+label input,label select,label textarea{margin-top:5px}
+.muted{color:var(--muted)}
+.small{font-size:12px}
+h2{font-size:20px;margin:0 0 10px}
+h3{font-size:16px;margin:0 0 8px}
+.row{
+ display:flex;gap:9px;align-items:center;flex-wrap:wrap;
+}
+.between{justify-content:space-between}
+.hidden{display:none!important}
+.stat{
+ background:#0f172a;border:1px solid var(--border);
+ border-radius:10px;padding:13px;
+}
+.stat strong{font-size:24px;display:block;margin-top:5px}
+.stat span{font-size:12px;color:var(--muted)}
+.calendar{
+ display:grid;grid-template-columns:repeat(7,minmax(0,1fr));
+ gap:5px;
+}
+.calendar button{
+ min-height:58px;background:#0f172a;color:white;
+ border:1px solid var(--border);border-radius:7px;
+ padding:5px;text-align:left;
+}
+.calendar button.selected{border:2px solid #60a5fa;background:#172554}
+.calendar button.has-record{border-color:#059669}
+.day-number{font-weight:800}
+.day-tag{font-size:10px;color:#86efac;display:block}
+.block{
+ display:grid;grid-template-columns:125px 125px 1fr;
+ gap:8px;align-items:center;
+ background:#0f172a;border:1px solid var(--border);
+ border-radius:9px;padding:10px;margin:8px 0;
+}
+.block.meal{border-left:4px solid #f59e0b}
+.block.study{border-left:4px solid #3b82f6}
+.block.break{border-left:4px solid #a78bfa}
+.summary-grid{
+ display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+ gap:8px;margin-top:12px;
+}
+.summary-item{
+ background:#0f172a;border:1px solid var(--border);
+ border-radius:9px;padding:10px;
+}
+.summary-item strong{display:block;font-size:19px;margin-top:4px}
+.progress{
+ height:8px;background:#334155;border-radius:20px;overflow:hidden;
+}
+.progress>div{height:100%;background:#22c55e}
+dialog{
+ background:#1e293b;color:white;border:1px solid #475569;
+ border-radius:12px;width:min(94vw,480px);padding:18px;
+}
+dialog::backdrop{background:#000a}
+hr{border:0;border-top:1px solid var(--border);margin:14px 0}
+@media(max-width:650px){
+ .grid2,.grid3{grid-template-columns:1fr}
+ .block{grid-template-columns:1fr}
+ .summary-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .main{padding:10px}
+}
+@media print{
+ body{background:white;color:#111}
+ header,.no-print,button{display:none!important}
+ .card,.stat,.summary-item{background:white;color:#111;border:1px solid #aaa}
+ .muted{color:#444}
+}
+</style>
 </head>
-<body class="antialiased min-h-screen">
-    <div class="sticky top-0 z-50 bg-slate-900 border-b border-slate-700 shadow-md">
-        <div class="p-4 flex flex-col md:flex-row justify-between md:items-center gap-4">
-            <div>
-                <h1 class="text-xl md:text-2xl font-bold tracking-tight">🎯 NEET 2027 COMMAND CENTER</h1>
-                <p class="text-sm text-slate-400 mt-1">Operation: 140+ Physics | Customizable Study Shift</p>
-            </div>
-            <div class="flex space-x-2">
-                <button id="tab-schedule" onclick="switchTab('schedule')" class="px-4 py-2 rounded font-medium bg-blue-600 text-white transition-colors">Master Schedule</button>
-                <button id="tab-routine" onclick="switchTab('routine')" class="px-4 py-2 rounded font-medium bg-slate-800 text-slate-300 hover:bg-slate-700 transition-colors">Daily Routine</button>
-            </div>
+
+<body>
+
+<header>
+ <div class="header-inner">
+  <div>
+   <h1 id="appTitle">UNIVERSAL COMMAND CENTER</h1>
+   <div class="subtitle" id="appSubtitle">
+    Multiple Exams · Study Planner · Study Analytics
+   </div>
+  </div>
+
+  <div class="row no-print">
+   <select id="profileSelect" class="field" style="width:auto">
+   </select>
+   <button class="btn" onclick="openProfileDialog()">+ Exam</button>
+  </div>
+ </div>
+
+ <nav class="nav no-print">
+  <button class="tab active" data-view="dashboard">Dashboard</button>
+  <button class="tab" data-view="syllabus">Subjects & Chapters</button>
+  <button class="tab" data-view="calendar">Calendar & Routine</button>
+  <button class="tab" data-view="history">Study History</button>
+  <button class="tab" data-view="backup">Backup & Export</button>
+ </nav>
+</header>
+
+<main class="main">
+
+<!-- DASHBOARD -->
+<section id="view-dashboard">
+ <div class="card">
+  <div class="row between">
+   <div>
+    <div class="small muted">ACTIVE EXAM PROFILE</div>
+    <h2 id="dashboardTitle">NEET 2027 COMMAND CENTER</h2>
+    <p class="muted small" id="dashboardSubtitle"></p>
+   </div>
+   <button class="btn2 no-print" onclick="editProfile()">Edit Profile</button>
+  </div>
+ </div>
+
+ <div class="grid grid3">
+  <div class="stat"><span>Total Subjects</span><strong id="dashSubjects">0</strong></div>
+  <div class="stat"><span>Total Chapters / Topics</span><strong id="dashChapters">0</strong></div>
+  <div class="stat"><span>Saved Study Days</span><strong id="dashDays">0</strong></div>
+ </div>
+
+ <div class="card">
+  <h3>Preparation Overview</h3>
+  <div class="grid grid2">
+   <div class="stat"><span>Completed Chapters</span><strong id="dashCompleted">0</strong></div>
+   <div class="stat"><span>Pending Chapters</span><strong id="dashPending">0</strong></div>
+  </div>
+  <p class="muted small" style="margin-top:12px">
+   Each exam profile has separate syllabus, calendar, study records and reports.
+  </p>
+ </div>
+
+ <div class="card">
+  <h3>Quick Actions</h3>
+  <div class="row no-print">
+   <button class="btn" onclick="showView('syllabus')">Manage Syllabus</button>
+   <button class="btn" onclick="showView('calendar')">Plan Study Day</button>
+   <button class="btn2" onclick="showView('backup')">Backup Data</button>
+  </div>
+ </div>
+</section>
+
+
+<!-- SUBJECTS AND CHAPTERS -->
+<section id="view-syllabus" class="hidden">
+ <div class="card">
+  <div class="row between">
+   <div>
+    <h2>Subjects & Chapters</h2>
+    <p class="muted small">
+     Add unlimited subjects, chapters, units and topics.
+    </p>
+   </div>
+   <button class="btn no-print" onclick="addSubject()">+ Add Subject</button>
+  </div>
+ </div>
+ <div id="subjectsContainer"></div>
+</section>
+
+
+<!-- CALENDAR AND ROUTINE -->
+<section id="view-calendar" class="hidden">
+
+ <div class="card">
+  <div class="row between">
+   <h2>Study Calendar</h2>
+   <div class="row no-print">
+    <button class="btn2" onclick="changeMonth(-1)">←</button>
+    <strong id="calendarMonth"></strong>
+    <button class="btn2" onclick="changeMonth(1)">→</button>
+   </div>
+  </div>
+
+  <div class="calendar" style="margin-top:12px">
+   <div class="small muted">Sun</div>
+   <div class="small muted">Mon</div>
+   <div class="small muted">Tue</div>
+   <div class="small muted">Wed</div>
+   <div class="small muted">Thu</div>
+   <div class="small muted">Fri</div>
+   <div class="small muted">Sat</div>
+  </div>
+
+  <div id="calendarGrid" class="calendar" style="margin-top:5px"></div>
+ </div>
+
+ <div class="card" id="dayEditor">
+  <h3>Select a date</h3>
+  <p class="muted small">Select a calendar date to configure its study shift.</p>
+ </div>
+
+ <div id="routineContainer"></div>
+</section>
+
+
+<!-- HISTORY -->
+<section id="view-history" class="hidden">
+ <div class="card">
+  <div class="row between">
+   <div>
+    <h2>Study History</h2>
+    <p class="muted small">
+     Past records remain saved independently.
+    </p>
+   </div>
+   <button class="btn2 no-print" onclick="printReport()">Print / Save PDF</button>
+  </div>
+  <div id="historyContainer"></div>
+ </div>
+</section>
+
+
+<!-- BACKUP AND EXPORT -->
+<section id="view-backup" class="hidden">
+ <div class="card">
+  <h2>Backup & Restore</h2>
+  <p class="muted small">
+   JSON backup includes all exam profiles, syllabus, shifts and history.
+  </p>
+
+  <div class="row no-print" style="margin-top:14px">
+   <button class="btn" onclick="downloadJSON()">Download JSON Backup</button>
+   <button class="btn2" onclick="chooseRestoreFile()">Restore JSON</button>
+   <button class="btn2" onclick="downloadCSV()">Export CSV</button>
+   <button class="btn2" onclick="printReport()">Export PDF</button>
+   <input type="file" id="restoreFile" accept=".json,application/json" class="hidden">
+  </div>
+
+  <hr>
+  <div class="stat">
+   <strong>Important Backup Note</strong>
+   <p class="small muted">
+    Browser site data can be deleted independently of browsing history.
+    Keep JSON backups in Google Drive or another safe location.
+    Automatic Google Drive sync requires a separate secure authorization setup.
+   </p>
+  </div>
+  <p id="backupMessage" class="small" role="status"></p>
+ </div>
+</section>
+
+</main>
+
+
+<!-- EXAM PROFILE DIALOG -->
+<dialog id="profileDialog">
+ <form id="profileForm">
+  <h2 id="profileDialogHeading">Create Exam Profile</h2>
+
+  <label>Exam / Course Name
+   <input id="profileName" class="field" required
+    placeholder="NEET, JEE, MBBS, UPSC...">
+  </label>
+
+  <label style="margin-top:12px">Target Year / Batch
+   <input id="profileYear" class="field"
+    placeholder="2027, 2028, 2029 batch">
+  </label>
+
+  <label style="margin-top:12px">Exam Date (optional)
+   <input id="profileExamDate" type="date" class="field">
+  </label>
+
+  <div class="row" style="justify-content:flex-end;margin-top:15px">
+   <button type="button" class="btn2" onclick="closeProfileDialog()">Cancel</button>
+   <button type="submit" class="btn">Save Profile</button>
+  </div>
+ </form>
+</dialog>
+
+
+<!-- SUBJECT DIALOG -->
+<dialog id="subjectDialog">
+ <form id="subjectForm">
+  <h2>Add Subject</h2>
+  <label>Subject Name
+   <input id="subjectInput" class="field" required
+    placeholder="Physics, Anatomy, Biochemistry...">
+  </label>
+  <div class="row" style="justify-content:flex-end;margin-top:15px">
+   <button type="button" class="btn2"
+    onclick="document.getElementById('subjectDialog').close()">Cancel</button>
+   <button type="submit" class="btn">Add</button>
+  </div>
+ </form>
+</dialog>
+
+
+<!-- CHAPTER DIALOG -->
+<dialog id="chapterDialog">
+ <form id="chapterForm">
+  <h2 id="chapterDialogHeading">Add Chapter / Topic</h2>
+  <label>Chapter / Unit / Topic Name
+   <input id="chapterInput" class="field" required
+    placeholder="Enter chapter or topic name">
+  </label>
+  <div class="row" style="justify-content:flex-end;margin-top:15px">
+   <button type="button" class="btn2"
+    onclick="document.getElementById('chapterDialog').close()">Cancel</button>
+   <button type="submit" class="btn">Save</button>
+  </div>
+ </form>
+</dialog>
+
+
+<!-- PART 2 AND PART 3 WILL CONTINUE HERE -->
+<script>
+    // ===============================
+// PART 2/3 — APP LOGIC
+// Paste directly after Part 1
+// ===============================
+
+const DB_KEY = "universal_command_center_v1";
+
+let db = {
+  profiles: [],
+  activeProfileId: null
+};
+
+let selectedDate = new Date().toISOString().slice(0,10);
+let calendarDate = new Date();
+let editingProfileId = null;
+let activeSubjectId = null;
+let editingChapterId = null;
+
+const $ = id => document.getElementById(id);
+
+function uid(){
+  return Date.now().toString(36) + Math.random().toString(36).slice(2,9);
+}
+
+function loadDB(){
+  try{
+    const saved = localStorage.getItem(DB_KEY);
+    if(saved){
+      const parsed = JSON.parse(saved);
+      if(parsed && Array.isArray(parsed.profiles)){
+        db = parsed;
+      }
+    }
+  }catch(e){
+    console.error("Database load error:",e);
+  }
+
+  if(!db.profiles.length){
+    const profile = {
+      id:uid(),
+      name:"NEET",
+      year:"2027",
+      examDate:"",
+      subjects:[],
+      days:{},
+      createdAt:new Date().toISOString()
+    };
+    db.profiles.push(profile);
+    db.activeProfileId = profile.id;
+  }
+
+  if(!db.activeProfileId ||
+     !db.profiles.some(p=>p.id===db.activeProfileId)){
+    db.activeProfileId = db.profiles[0].id;
+  }
+
+  saveDB();
+}
+
+function saveDB(){
+  try{
+    localStorage.setItem(DB_KEY,JSON.stringify(db));
+  }catch(e){
+    alert("Storage full or unavailable. Please download a JSON backup.");
+    console.error(e);
+  }
+}
+
+function activeProfile(){
+  return db.profiles.find(p=>p.id===db.activeProfileId) || null;
+}
+
+function activeDay(){
+  const p = activeProfile();
+  if(!p) return null;
+  return p.days[selectedDate] || null;
+}
+
+function safeText(value){
+  return String(value ?? "").replace(/[&<>"']/g,c=>({
+    "&":"&amp;",
+    "<":"&lt;",
+    ">":"&gt;",
+    '"':"&quot;",
+    "'":"&#039;"
+  })[c]);
+}
+
+function formatHours(minutes){
+  minutes = Math.max(0,Math.round(minutes || 0));
+  const h = Math.floor(minutes/60);
+  const m = minutes%60;
+  return h+"h "+m+"m";
+}
+
+function dateLabel(dateString){
+  if(!dateString) return "";
+  const d = new Date(dateString+"T12:00:00");
+  return d.toLocaleDateString("en-IN",{
+    day:"numeric",month:"short",year:"numeric"
+  });
+}
+
+function dateTime(date,time){
+  return new Date(date+"T"+time+":00");
+}
+
+function minutesBetween(start,end){
+  return Math.max(0,Math.round((end-start)/60000));
+}
+
+function showView(view){
+  document.querySelectorAll("main section").forEach(s=>{
+    s.classList.add("hidden");
+  });
+
+  const target = $("view-"+view);
+  if(target) target.classList.remove("hidden");
+
+  document.querySelectorAll(".tab").forEach(b=>{
+    b.classList.toggle("active",b.dataset.view===view);
+  });
+
+  if(view==="dashboard") renderDashboard();
+  if(view==="syllabus") renderSubjects();
+  if(view==="calendar") renderCalendar();
+  if(view==="history") renderHistory();
+}
+
+document.querySelectorAll(".tab").forEach(button=>{
+  button.addEventListener("click",()=>{
+    showView(button.dataset.view);
+  });
+});
+
+function renderProfileSelect(){
+  const select = $("profileSelect");
+  select.innerHTML = "";
+
+  db.profiles.forEach(p=>{
+    const option = document.createElement("option");
+    option.value = p.id;
+    option.textContent = p.name+" "+(p.year || "");
+    select.appendChild(option);
+  });
+
+  select.value = db.activeProfileId;
+
+  const p = activeProfile();
+  if(p){
+    const title = `${p.name} ${p.year || ""}`.trim();
+    $("appTitle").textContent = title.toUpperCase()+" COMMAND CENTER";
+    $("dashboardTitle").textContent = title+" COMMAND CENTER";
+    $("dashboardSubtitle").textContent =
+      p.examDate ? "Target date: "+dateLabel(p.examDate) :
+      "Your personalized study workspace";
+  }
+}
+
+$("profileSelect").addEventListener("change",e=>{
+  db.activeProfileId = e.target.value;
+  saveDB();
+  renderAll();
+});
+
+function openProfileDialog(){
+  editingProfileId = null;
+  $("profileDialogHeading").textContent = "Create Exam Profile";
+  $("profileName").value = "";
+  $("profileYear").value = "";
+  $("profileExamDate").value = "";
+  $("profileDialog").showModal();
+}
+
+function editProfile(){
+  const p = activeProfile();
+  if(!p) return;
+
+  editingProfileId = p.id;
+  $("profileDialogHeading").textContent = "Edit Exam Profile";
+  $("profileName").value = p.name;
+  $("profileYear").value = p.year || "";
+  $("profileExamDate").value = p.examDate || "";
+  $("profileDialog").showModal();
+}
+
+function closeProfileDialog(){
+  $("profileDialog").close();
+}
+
+$("profileForm").addEventListener("submit",e=>{
+  e.preventDefault();
+
+  const name = $("profileName").value.trim();
+  const year = $("profileYear").value.trim();
+  const examDate = $("profileExamDate").value;
+
+  if(!name) return;
+
+  if(editingProfileId){
+    const p = db.profiles.find(x=>x.id===editingProfileId);
+    if(p){
+      p.name = name;
+      p.year = year;
+      p.examDate = examDate;
+    }
+  }else{
+    const p = {
+      id:uid(),
+      name,
+      year,
+      examDate,
+      subjects:[],
+      days:{},
+      createdAt:new Date().toISOString()
+    };
+    db.profiles.push(p);
+    db.activeProfileId = p.id;
+  }
+
+  saveDB();
+  $("profileDialog").close();
+  renderAll();
+});
+
+function addSubject(){
+  $("subjectInput").value = "";
+  $("subjectDialog").showModal();
+}
+
+$("subjectForm").addEventListener("submit",e=>{
+  e.preventDefault();
+
+  const name = $("subjectInput").value.trim();
+  if(!name) return;
+
+  const p = activeProfile();
+  if(!p) return;
+
+  p.subjects.push({
+    id:uid(),
+    name,
+    chapters:[]
+  });
+
+  saveDB();
+  $("subjectDialog").close();
+  renderSubjects();
+  renderDashboard();
+});
+
+function renderSubjects(){
+  const p = activeProfile();
+  const container = $("subjectsContainer");
+
+  if(!p || !p.subjects.length){
+    container.innerHTML = `
+      <div class="card">
+        <p class="muted">No subjects added yet. Use Add Subject to begin.</p>
+      </div>`;
+    return;
+  }
+
+  container.innerHTML = p.subjects.map(subject=>`
+    <div class="card">
+      <div class="row between">
+        <div>
+          <h3>${safeText(subject.name)}</h3>
+          <span class="small muted">
+            ${subject.chapters.length} chapters / topics
+          </span>
         </div>
+        <div class="row no-print">
+          <button class="btn2" onclick="renameSubject('${subject.id}')">Rename</button>
+          <button class="btn" onclick="addChapter('${subject.id}')">+ Chapter</button>
+          <button class="danger" onclick="deleteSubject('${subject.id}')">Delete</button>
+        </div>
+      </div>
+
+      <div style="margin-top:12px">
+        ${subject.chapters.length ? subject.chapters.map(ch=>`
+          <div class="row between" style="
+            background:#0f172a;padding:10px;border-radius:8px;
+            margin:6px 0;border:1px solid #334155">
+            <div style="min-width:0">
+              <div>${safeText(ch.name)}</div>
+              <div class="small muted">${safeText(ch.status || "Pending")}</div>
+            </div>
+            <div class="row no-print">
+              <button class="btn2" onclick="toggleChapterStatus('${subject.id}','${ch.id}')">
+                ${ch.status==="Completed" ? "Undo" : "Complete"}
+              </button>
+              <button class="btn2" onclick="editChapter('${subject.id}','${ch.id}')">Edit</button>
+              <button class="danger" onclick="deleteChapter('${subject.id}','${ch.id}')">×</button>
+            </div>
+          </div>
+        `).join("") : `<p class="small muted">No chapters added.</p>`}
+      </div>
+    </div>
+  `).join("");
+}
+
+function renameSubject(id){
+  const p = activeProfile();
+  const s = p.subjects.find(x=>x.id===id);
+  if(!s) return;
+
+  const name = prompt("Enter new subject name:",s.name);
+  if(name && name.trim()){
+    s.name = name.trim();
+    saveDB();
+    renderSubjects();
+  }
+}
+
+function deleteSubject(id){
+  if(!confirm("Delete this subject and its chapters?")) return;
+
+  const p = activeProfile();
+  p.subjects = p.subjects.filter(s=>s.id!==id);
+  saveDB();
+  renderSubjects();
+  renderDashboard();
+}
+
+function addChapter(subjectId){
+  activeSubjectId = subjectId;
+  editingChapterId = null;
+  $("chapterDialogHeading").textContent = "Add Chapter / Topic";
+  $("chapterInput").value = "";
+  $("chapterDialog").showModal();
+}
+
+function editChapter(subjectId,chapterId){
+  const p = activeProfile();
+  const s = p.subjects.find(x=>x.id===subjectId);
+  const ch = s?.chapters.find(x=>x.id===chapterId);
+  if(!ch) return;
+
+  activeSubjectId = subjectId;
+  editingChapterId = chapterId;
+  $("chapterDialogHeading").textContent = "Edit Chapter / Topic";
+  $("chapterInput").value = ch.name;
+  $("chapterDialog").showModal();
+}
+
+$("chapterForm").addEventListener("submit",e=>{
+  e.preventDefault();
+
+  const name = $("chapterInput").value.trim();
+  if(!name) return;
+
+  const p = activeProfile();
+  const s = p.subjects.find(x=>x.id===activeSubjectId);
+  if(!s) return;
+
+  if(editingChapterId){
+    const ch = s.chapters.find(x=>x.id===editingChapterId);
+    if(ch) ch.name = name;
+  }else{
+    s.chapters.push({
+      id:uid(),
+      name,
+      status:"Pending"
+    });
+  }
+
+  saveDB();
+  $("chapterDialog").close();
+  renderSubjects();
+  renderDashboard();
+});
+
+function deleteChapter(subjectId,chapterId){
+  if(!confirm("Delete this chapter?")) return;
+
+  const p = activeProfile();
+  const s = p.subjects.find(x=>x.id===subjectId);
+  if(!s) return;
+
+  s.chapters = s.chapters.filter(ch=>ch.id!==chapterId);
+  saveDB();
+  renderSubjects();
+  renderDashboard();
+}
+
+function toggleChapterStatus(subjectId,chapterId){
+  const p = activeProfile();
+  const s = p.subjects.find(x=>x.id===subjectId);
+  const ch = s?.chapters.find(x=>x.id===chapterId);
+  if(!ch) return;
+
+  ch.status = ch.status==="Completed" ? "Pending" : "Completed";
+  saveDB();
+  renderSubjects();
+  renderDashboard();
+}
+
+function renderDashboard(){
+  const p = activeProfile();
+  if(!p) return;
+
+  let chapterCount = 0;
+  let completed = 0;
+
+  p.subjects.forEach(s=>{
+    chapterCount += s.chapters.length;
+    completed += s.chapters.filter(c=>c.status==="Completed").length;
+  });
+
+  $("dashSubjects").textContent = p.subjects.length;
+  $("dashChapters").textContent = chapterCount;
+  $("dashCompleted").textContent = completed;
+  $("dashPending").textContent = chapterCount-completed;
+  $("dashDays").textContent = Object.keys(p.days || {}).length;
+}
+
+function renderAll(){
+  renderProfileSelect();
+  renderDashboard();
+  renderSubjects();
+  renderCalendar();
+  renderHistory();
+}
+
+function changeMonth(amount){
+  calendarDate.setMonth(calendarDate.getMonth()+amount);
+  renderCalendar();
+}
+
+function renderCalendar(){
+  const p = activeProfile();
+  if(!p) return;
+
+  const year = calendarDate.getFullYear();
+  const month = calendarDate.getMonth();
+
+  $("calendarMonth").textContent =
+    calendarDate.toLocaleDateString("en-IN",{month:"long",year:"numeric"});
+
+  const firstDay = new Date(year,month,1).getDay();
+  const totalDays = new Date(year,month+1,0).getDate();
+
+  let html = "";
+
+  for(let i=0;i<firstDay;i++){
+    html += `<div></div>`;
+  }
+
+  for(let day=1;day<=totalDays;day++){
+    const date = [
+      year,
+      String(month+1).padStart(2,"0"),
+      String(day).padStart(2,"0")
+    ].join("-");
+
+    const record = p.days[date];
+    const selected = date===selectedDate ? "selected" : "";
+    const hasRecord = record ? "has-record" : "";
+
+    html += `
+      <button class="${selected} ${hasRecord}"
+        onclick="selectDate('${date}')">
+        <span class="day-number">${day}</span>
+        ${record ? `<span class="day-tag">
+          ${record.restDay ? "REST" : "Day "+(record.studyDayNumber || "")}
+        </span>` : ""}
+      </button>`;
+  }
+
+  $("calendarGrid").innerHTML = html;
+  renderDayEditor();
+}
+
+function selectDate(date){
+  selectedDate = date;
+  renderCalendar();
+}
+
+function defaultDay(date){
+  return {
+    date,
+    restDay:false,
+    studyDayNumber:"",
+    startDate:date,
+    startTime:"07:00",
+    endDate:date,
+    endTime:"22:00",
+    studyDuration:50,
+    shortBreakDuration:7,
+    meals:{
+      Breakfast:{enabled:false,time:"08:00",duration:30},
+      Lunch:{enabled:false,time:"13:00",duration:45},
+      Snacks:{enabled:false,time:"17:00",duration:20},
+      Dinner:{enabled:false,time:"20:00",duration:40}
+    },
+    blocks:[],
+    generated:false,
+    updatedAt:new Date().toISOString()
+  };
+}
+
+function getDay(date){
+  const p = activeProfile();
+  if(!p.days[date]){
+    p.days[date] = defaultDay(date);
+  }
+  return p.days[date];
+}
+
+function renderDayEditor(){
+  const p = activeProfile();
+  const day = p.days[selectedDate] || defaultDay(selectedDate);
+
+  if(day.restDay){
+    $("dayEditor").innerHTML = `
+      <h3>${dateLabel(selectedDate)} — Rest Day</h3>
+      <p class="muted small">No study shift is scheduled.</p>
+      <button class="btn" onclick="editRestDay(false)">Set Study Shift</button>
+    `;
+    $("routineContainer").innerHTML = "";
+    return;
+  }
+
+  const meals = day.meals || defaultDay(selectedDate).meals;
+
+  $("dayEditor").innerHTML = `
+    <div class="row between">
+      <div>
+        <h3>Shift Settings — ${dateLabel(selectedDate)}</h3>
+        <p class="small muted">Each calendar date has its own independent shift.</p>
+      </div>
+      <button class="btn2 no-print" onclick="setRestDay()">Rest Day</button>
     </div>
 
-    <main class="w-full max-w-5xl mx-auto p-4 md:p-6 pb-20">
-        <div id="view-schedule" class="block">
-            <div id="schedule-container" class="space-y-6 relative z-10"></div>
+    <div class="grid grid2" style="margin-top:12px">
+      <label>Study Day Number
+        <input class="field" id="studyDayNumber"
+          type="text" value="${safeText(day.studyDayNumber || "")}"
+          placeholder="Example: 1">
+      </label>
+
+      <label>Study Start Date
+        <input class="field" id="startDate" type="date"
+          value="${day.startDate}">
+      </label>
+
+      <label>Study Start Time
+        <input class="field" id="startTime" type="time"
+          value="${day.startTime}">
+      </label>
+
+      <label>Study End Date
+        <input class="field" id="endDate" type="date"
+          value="${day.endDate}">
+      </label>
+
+      <label>Study End Time
+        <input class="field" id="endTime" type="time"
+          value="${day.endTime}">
+      </label>
+
+      <label>Study Block Duration (minutes)
+        <input class="field" id="studyDuration" type="number"
+          min="1" max="600" value="${day.studyDuration}">
+      </label>
+
+      <label>Short Break Duration (minutes)
+        <input class="field" id="shortBreakDuration" type="number"
+          min="0" max="180" value="${day.shortBreakDuration}">
+      </label>
+    </div>
+
+    <hr>
+    <h3>Meal Settings</h3>
+    <p class="small muted">
+      Enable only the meals you want. Meal duration is counted inside total break time.
+    </p>
+
+    <div class="grid grid2">
+      ${Object.entries(meals).map(([name,m])=>`
+        <div class="stat">
+          <label>
+            <input type="checkbox" id="meal-${name}"
+              ${m.enabled ? "checked" : ""}>
+            Include ${name}
+          </label>
+          <label style="margin-top:8px">Time
+            <input class="field" type="time"
+              id="mealTime-${name}" value="${m.time}">
+          </label>
+          <label style="margin-top:8px">Duration (minutes)
+            <input class="field" type="number" min="1" max="300"
+              id="mealDuration-${name}" value="${m.duration}">
+          </label>
+        </div>
+      `).join("")}
+    </div>
+
+    <div class="row no-print" style="margin-top:15px">
+      <button class="btn" onclick="saveShiftSettings()">Save Shift Settings</button>
+      <button class="btn2" onclick="generateRoutine()">Generate Routine</button>
+    </div>
+
+    <p id="shiftMessage" class="small muted"></p>
+  `;
+
+  renderRoutine();
+}
+
+function setRestDay(){
+  if(!confirm("Mark this date as a Rest Day? Existing routine blocks will be removed.")) return;
+  editRestDay(true);
+}
+
+function editRestDay(value){
+  const p = activeProfile();
+  const day = getDay(selectedDate);
+
+  day.restDay = value;
+  if(value){
+    day.blocks = [];
+    day.generated = true;
+  }
+
+  saveDB();
+  renderCalendar();
+}
+
+function saveShiftSettings(){
+  const day = getDay(selectedDate);
+
+  const startDate = $("startDate").value;
+  const startTime = $("startTime").value;
+  const endDate = $("endDate").value;
+  const endTime = $("endTime").value;
+
+  if(!startDate || !startTime || !endDate || !endTime){
+    alert("Please enter all shift dates and times.");
+    return;
+  }
+
+  const start = dateTime(startDate,startTime);
+  const end = dateTime(endDate,endTime);
+
+  if(end<=start){
+    alert("End date and time must be later than start date and time.");
+    return;
+  }
+
+  const studyDuration = Number($("studyDuration").value);
+  const shortBreakDuration = Number($("shortBreakDuration").value);
+
+  if(studyDuration<1 || shortBreakDuration<0){
+    alert("Please enter valid study and break durations.");
+    return;
+  }
+
+  const meals = {};
+
+  ["Breakfast","Lunch","Snacks","Dinner"].forEach(name=>{
+    meals[name] = {
+      enabled:$("meal-"+name).checked,
+      time:$("mealTime-"+name).value,
+      duration:Number($("mealDuration-"+name).value)
+    };
+  });
+
+  for(const [name,m] of Object.entries(meals)){
+    if(m.enabled && (!m.time || m.duration<=0)){
+      alert("Enter valid time and duration for "+name);
+      return;
+    }
+  }
+
+  const updated = {
+    ...day,
+    restDay:false,
+    studyDayNumber:$("studyDayNumber").value.trim(),
+    startDate,
+    startTime,
+    endDate,
+    endTime,
+    studyDuration,
+    shortBreakDuration,
+    meals,
+    updatedAt:new Date().toISOString()
+  };
+
+  const p = activeProfile();
+
+  if(hasShiftOverlap(p,selectedDate,updated)){
+    if(!confirm("This shift overlaps another saved shift. Save anyway?")) return;
+  }
+
+  p.days[selectedDate] = updated;
+  saveDB();
+
+  $("shiftMessage").textContent = "Shift settings saved.";
+  renderCalendar();
+}
+
+function hasShiftOverlap(profile,ignoreDate,candidate){
+  const aStart = dateTime(candidate.startDate,candidate.startTime);
+  const aEnd = dateTime(candidate.endDate,candidate.endTime);
+
+  return Object.entries(profile.days).some(([date,other])=>{
+    if(date===ignoreDate || other.restDay) return false;
+    if(!other.startDate || !other.startTime ||
+       !other.endDate || !other.endTime) return false;
+
+    const bStart = dateTime(other.startDate,other.startTime);
+    const bEnd = dateTime(other.endDate,other.endTime);
+
+    return aStart<bEnd && bStart<aEnd;
+  });
+}
+
+function generateRoutine(){
+  saveShiftSettings();
+
+  const p = activeProfile();
+  const day = p.days[selectedDate];
+
+  if(!day || day.restDay) return;
+
+  const start = dateTime(day.startDate,day.startTime);
+  const end = dateTime(day.endDate,day.endTime);
+
+  if(end<=start) return;
+
+  const meals = [];
+
+  Object.entries(day.meals).forEach(([name,m])=>{
+    if(!m.enabled) return;
+
+    const mealStart = dateTime(day.startDate,m.time);
+    let actualStart = mealStart;
+
+    // A meal can be placed on the following date for overnight shifts.
+    if(actualStart<start) actualStart.setDate(actualStart.getDate()+1);
+
+    const mealEnd = new Date(actualStart.getTime()+m.duration*60000);
+
+    if(actualStart>=start && mealEnd<=end){
+      meals.push({
+        id:uid(),
+        type:"Meal",
+        category:name,
+        start:actualStart.toISOString(),
+        end:mealEnd.toISOString(),
+        duration:m.duration,
+        status:"Pending",
+        topic:name
+      });
+    }
+  });
+
+  meals.sort((a,b)=>new Date(a.start)-new Date(b.start));
+
+  for(let i=1;i<meals.length;i++){
+    if(new Date(meals[i].start)<new Date(meals[i-1].end)){
+      alert("Meal timings overlap. Please adjust meal times.");
+      return;
+    }
+  }
+
+  const blocks = [];
+  let cursor = new Date(start);
+  let mealIndex = 0;
+  let nextIsStudy = true;
+
+  while(cursor<end){
+    if(mealIndex<meals.length &&
+       cursor>=new Date(meals[mealIndex].start)){
+      cursor = new Date(meals[mealIndex].end);
+      blocks.push(meals[mealIndex]);
+      mealIndex++;
+      nextIsStudy = true;
+      continue;
+    }
+
+    const nextMeal = meals[mealIndex]
+      ? new Date(meals[mealIndex].start)
+      : end;
+      // ===============================
+// PART 3/3 — HISTORY, EXPORT,
+// BACKUP, RESTORE & INITIALIZATION
+// Paste directly after Part 2
+// ===============================
+
+function renderHistory(){
+  const p = activeProfile();
+  const container = $("historyContainer");
+  if(!p) return;
+
+  const dates = Object.keys(p.days || {}).sort().reverse();
+
+  if(!dates.length){
+    container.innerHTML = `<p class="muted">No study history available yet.</p>`;
+    return;
+  }
+
+  container.innerHTML = dates.map(date=>{
+    const day = p.days[date];
+    const totals = calculateDayTotals(day);
+
+    return `
+      <div class="stat" style="margin:10px 0">
+        <div class="row between">
+          <div>
+            <strong style="font-size:16px">${dateLabel(date)}</strong>
+            <div class="small muted">
+              ${day.restDay ? "Rest Day" : "Study Day "+safeText(day.studyDayNumber || "")}
+            </div>
+          </div>
+          <button class="btn2 no-print"
+            onclick="openHistoryDate('${date}')">View</button>
         </div>
 
-        <div id="view-routine" class="hidden">
-            <section class="bg-slate-800 rounded-lg p-4 md:p-6 shadow border border-slate-700 mb-5">
-                <h2 class="text-lg font-bold mb-4">Set Your Study Start Time</h2>
-                <div class="flex flex-wrap gap-3 items-center">
-                    <select id="time-hour" aria-label="Start hour" class="bg-slate-900 border border-slate-600 text-white p-2 rounded">
-                        <option value="01">01</option><option value="02">02</option><option value="03">03</option><option value="04">04</option><option value="05">05</option><option value="06">06</option><option value="07">07</option><option value="08">08</option><option value="09">09</option><option value="10">10</option><option value="11">11</option><option value="12">12</option>
-                    </select>
-                    <span class="font-bold">:</span>
-                    <select id="time-min" aria-label="Start minutes" class="bg-slate-900 border border-slate-600 text-white p-2 rounded">
-                        <option value="00">00</option><option value="15">15</option><option value="30">30</option><option value="45">45</option>
-                    </select>
-                    <select id="time-ampm" aria-label="Start AM or PM" class="bg-slate-900 border border-slate-600 text-white p-2 rounded">
-                        <option value="AM">AM</option><option value="PM">PM</option>
-                    </select>
-                    <label for="shift-duration" class="text-sm font-semibold">Shift duration:</label>
-                    <input id="shift-duration" type="number" min="0.5" max="24" step="0.5" value="14" aria-label="Study shift duration in hours" class="w-24 bg-slate-900 border border-slate-600 text-white p-2 rounded">
-                    <span class="text-sm text-slate-400">hours</span>
-                    <button onclick="generateRoutine()" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded">Update Routine</button>
-                </div>
-            </section>
+        ${!day.restDay ? `
+          <div class="summary-grid">
+            <div class="summary-item">
+              <span class="small muted">Study</span>
+              <strong>${formatHours(totals.study)}</strong>
+            </div>
+            <div class="summary-item">
+              <span class="small muted">Break</span>
+              <strong>${formatHours(totals.break)}</strong>
+            </div>
+            <div class="summary-item">
+              <span class="small muted">Completed</span>
+              <strong>${formatHours(totals.completedStudy)}</strong>
+            </div>
+          </div>
+        ` : ""}
+      </div>
+    `;
+  }).join("");
+}
 
-            <section class="bg-slate-800 rounded-lg p-4 md:p-6 shadow border border-slate-700 mb-5">
-                <div class="mb-4">
-                    <h2 class="text-lg font-bold">Customize Your Meal Timings</h2>
-                    <p class="text-sm text-slate-400 mt-1">Meal times are fixed to the clock times you choose. They will not be automatically pushed to midnight.</p>
-                </div>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div class="bg-slate-900/70 rounded-lg p-3 border border-slate-700">
-                        <label for="meal-breakfast-time" class="block text-sm font-semibold mb-2">🍳 Breakfast</label>
-                        <div class="flex gap-2">
-                            <input id="meal-breakfast-time" type="time" value="08:00" class="min-w-0 flex-1 bg-slate-800 border border-slate-600 rounded p-2">
-                            <input id="meal-breakfast-duration" type="number" min="5" max="120" value="30" aria-label="Breakfast duration in minutes" class="w-24 bg-slate-800 border border-slate-600 rounded p-2">
-                        </div>
-                        <p class="text-xs text-slate-500 mt-1">Time / duration (minutes)</p>
-                    </div>
-                    <div class="bg-slate-900/70 rounded-lg p-3 border border-slate-700">
-                        <label for="meal-lunch-time" class="block text-sm font-semibold mb-2">🍱 Lunch</label>
-                        <div class="flex gap-2">
-                            <input id="meal-lunch-time" type="time" value="13:00" class="min-w-0 flex-1 bg-slate-800 border border-slate-600 rounded p-2">
-                            <input id="meal-lunch-duration" type="number" min="5" max="120" value="40" aria-label="Lunch duration in minutes" class="w-24 bg-slate-800 border border-slate-600 rounded p-2">
-                        </div>
-                        <p class="text-xs text-slate-500 mt-1">Time / duration (minutes)</p>
-                    </div>
-                    <div class="bg-slate-900/70 rounded-lg p-3 border border-slate-700">
-                        <div class="flex items-center justify-between gap-2 mb-2">
-                            <label for="meal-snacks-time" class="block text-sm font-semibold">🥪 Snacks</label>
-                            <label class="flex items-center gap-2 text-xs text-slate-300"><input id="meal-snacks-enabled" type="checkbox" checked class="accent-blue-500"> Include</label>
-                        </div>
-                        <div class="flex gap-2">
-                            <input id="meal-snacks-time" type="time" value="17:00" class="min-w-0 flex-1 bg-slate-800 border border-slate-600 rounded p-2">
-                            <input id="meal-snacks-duration" type="number" min="5" max="120" value="15" aria-label="Snacks duration in minutes" class="w-24 bg-slate-800 border border-slate-600 rounded p-2">
-                        </div>
-                        <p class="text-xs text-slate-500 mt-1">Turn Include off to use this time for study</p>
-                    </div>
-                    <div class="bg-slate-900/70 rounded-lg p-3 border border-slate-700">
-                        <label for="meal-dinner-time" class="block text-sm font-semibold mb-2">🍽️ Dinner</label>
-                        <div class="flex gap-2">
-                            <input id="meal-dinner-time" type="time" value="20:00" class="min-w-0 flex-1 bg-slate-800 border border-slate-600 rounded p-2">
-                            <input id="meal-dinner-duration" type="number" min="5" max="120" value="40" aria-label="Dinner duration in minutes" class="w-24 bg-slate-800 border border-slate-600 rounded p-2">
-                        </div>
-                        <p class="text-xs text-slate-500 mt-1">Time / duration (minutes)</p>
-                    </div>
-                </div>
-                <button onclick="saveMealSettingsAndGenerate()" class="mt-4 w-full sm:w-auto px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded">Save Meal Settings & Generate Routine</button>
-                <p id="meal-settings-message" role="status" class="text-xs text-emerald-300 mt-3"></p>
-            </section>
+function openHistoryDate(date){
+  selectedDate = date;
+  calendarDate = new Date(date+"T12:00:00");
+  showView("calendar");
+}
 
-            <div id="routine-container" class="space-y-3"></div>
-        </div>
-    </main>
+function downloadFile(filename,content,type){
+  const blob = new Blob([content],{type});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
 
-    <script>
-        const chapters = [
-            "[PHY] Units & Measurements", "[CHEM] Basic Concepts", "[BIO] Living World", "[PHY] Motion in a Straight Line", "[CHEM] Structure of Atom", "[BIO] Biological Class.",
-            "[PHY] Motion in a Plane", "[CHEM] Classification of Elements", "[BIO] Plant Kingdom", "[PHY] Laws of Motion", "[CHEM] Chemical Bonding", "[BIO] Animal Kingdom",
-            "[PHY] Work, Energy, Power", "[CHEM] Thermodynamics (Chem)", "[BIO] Morphology of Plants", "[PHY] Rotational Motion", "[CHEM] Equilibrium", "[BIO] Anatomy of Plants",
-            "[PHY] Gravitation", "[CHEM] Redox Reactions", "[BIO] Structural Org. Animals", "[PHY] Solids", "[CHEM] Solutions", "[BIO] Cell: Unit of Life",
-            "[PHY] Fluids", "[CHEM] Electrochemistry", "[BIO] Biomolecules", "[PHY] Thermal Properties", "[CHEM] Chemical Kinetics", "[BIO] Cell Cycle",
-            "[PHY] Thermodynamics", "[CHEM] d and f Block", "[BIO] Photosynthesis", "[PHY] Kinetic Theory", "[CHEM] Coordination Compounds", "[BIO] Respiration",
-            "[PHY] Oscillations", "[CHEM] Organic - Basic Principles", "[BIO] Plant Growth", "[PHY] Waves", "[CHEM] Hydrocarbons", "[BIO] Breathing & Exchange",
-            "[PHY] Charges & Fields", "[CHEM] Haloalkanes", "[BIO] Body Fluids", "[PHY] Potential & Cap", "[CHEM] Alcohols", "[BIO] Excretory Products",
-            "[PHY] Current Electricity", "[CHEM] Aldehydes & Ketones", "[BIO] Locomotion & Movement", "[PHY] Moving Charges", "[CHEM] Amines", "[BIO] Neural Control",
-            "[PHY] Magnetism & Matter", "[CHEM] Biomolecules (Chem)", "[BIO] Chemical Coord.", "[PHY] EMI", "[BIO] Sexual Repro. Plants", "[PHY] Alternating Current",
-            "[BIO] Human Reproduction", "[PHY] EM Waves", "[BIO] Reproductive Health", "[PHY] Ray Optics", "[BIO] Principles of Inheritance", "[PHY] Wave Optics",
-            "[BIO] Molecular Basis", "[PHY] Dual Nature", "[BIO] Evolution", "[PHY] Atoms", "[BIO] Human Health & Disease", "[PHY] Nuclei",
-            "[BIO] Microbes", "[PHY] Semiconductors", "[BIO] Biotech: Principles", "[BIO] Biotech: Apps", "[BIO] Organisms & Pops", "[BIO] Ecosystem", "[BIO] Biodiversity"
-        ];
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
 
-        const MEAL_DEFAULTS = {
-            breakfast: { time: "08:00", duration: 30, enabled: true, label: "Breakfast", icon: "🍳" },
-            lunch:     { time: "13:00", duration: 40, enabled: true, label: "Lunch", icon: "🍱" },
-            snacks:    { time: "17:00", duration: 15, enabled: true, label: "Snacks", icon: "🥪" },
-            dinner:    { time: "20:00", duration: 40, enabled: true, label: "Dinner", icon: "🍽️" }
-        };
+  URL.revokeObjectURL(url);
+}
 
-        function switchTab(tab) {
-            const btnSched = document.getElementById('tab-schedule');
-            const btnRout = document.getElementById('tab-routine');
-            const viewSched = document.getElementById('view-schedule');
-            const viewRout = document.getElementById('view-routine');
+function downloadJSON(){
+  const backup = {
+    app:"Universal Command Center",
+    version:1,
+    exportedAt:new Date().toISOString(),
+    data:db
+  };
 
-            if (tab === 'schedule') {
-                btnSched.className = "px-4 py-2 rounded font-medium bg-blue-600 text-white transition-colors";
-                btnRout.className = "px-4 py-2 rounded font-medium bg-slate-800 text-slate-300 hover:bg-slate-700 transition-colors";
-                viewSched.classList.remove('hidden'); viewSched.classList.add('block');
-                viewRout.classList.remove('block'); viewRout.classList.add('hidden');
-            } else {
-                btnRout.className = "px-4 py-2 rounded font-medium bg-blue-600 text-white transition-colors";
-                btnSched.className = "px-4 py-2 rounded font-medium bg-slate-800 text-slate-300 hover:bg-slate-700 transition-colors";
-                viewRout.classList.remove('hidden'); viewRout.classList.add('block');
-                viewSched.classList.remove('block'); viewSched.classList.add('hidden');
-                loadStartTime();
-                loadMealSettings();
-                generateRoutine();
-            }
-        }
+  downloadFile(
+    "command-center-backup-"+new Date().toISOString().slice(0,10)+".json",
+    JSON.stringify(backup,null,2),
+    "application/json"
+  );
 
-        function generateSchedule() {
-            const container = document.getElementById('schedule-container');
-            let currentDate = new Date(2026, 10, 27);
-            const endDate = new Date(2027, 4, 1);
-            let html = '';
-            let currentMonth = -1;
-            let chapterIndex = 0;
-            const monthNames = ["JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE", "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"];
-            const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  $("backupMessage").textContent =
+    "JSON backup downloaded. Keep this file in a safe location.";
+}
 
-            while (currentDate <= endDate) {
-                const m = currentDate.getMonth();
-                const d = currentDate.getDay();
-                if (m !== currentMonth) {
-                    html += `<div class="sticky top-[70px] md:top-[80px] bg-slate-900/95 backdrop-blur-sm pt-4 pb-2 z-20 border-b border-slate-700"><h2 class="text-xl font-black text-slate-200 tracking-wider">${monthNames[m]} ${currentDate.getFullYear()}</h2></div>`;
-                    currentMonth = m;
-                }
-                const dateStr = `${dayNames[d]}, ${monthNames[m].substring(0,3)} ${currentDate.getDate()}, ${currentDate.getFullYear()}`;
-                const isoDate = `${currentDate.getFullYear()}-${String(m+1).padStart(2,'0')}-${String(currentDate.getDate()).padStart(2,'0')}`;
-                const savedVal = localStorage.getItem('neet_sched_' + isoDate) || "";
+function chooseRestoreFile(){
+  $("restoreFile").click();
+}
 
-                if (d === 0) {
-                    html += `<div class="flex flex-col md:flex-row p-3 rounded-lg border border-red-900/50 bg-red-950/20"><div class="w-full md:w-32 flex-shrink-0 font-medium text-red-400 mb-2 md:mb-0">${dateStr}</div><div class="flex-grow font-bold text-red-400 pl-0 md:pl-4">⚠️ SUNDAY: REVISION & MOCK TEST</div></div>`;
-                } else {
-                    const defaultChap = chapterIndex < chapters.length ? chapters[chapterIndex] : "Revision / Mock";
-                    const displayVal = savedVal !== "" ? savedVal : defaultChap;
-                    const phase = currentDate < new Date(2027, 2, 1) ? "1" : (currentDate < new Date(2027, 3, 15) ? "2" : "3");
-                    html += `<div class="flex flex-col md:flex-row p-3 rounded-lg border border-slate-700 bg-slate-800/50 hover:bg-slate-800 transition-colors group"><div class="w-full md:w-32 flex-shrink-0 font-medium text-slate-400 mb-2 md:mb-0 flex items-center gap-2"><span>${dateStr}</span></div><div class="flex-grow pl-0 md:pl-4 flex items-center gap-3"><span class="text-[10px] font-bold px-2 py-1 rounded bg-slate-700 text-slate-300 tracking-wider">PHASE ${phase}</span><input type="text" id="date-${isoDate}" onchange="saveSchedule('${isoDate}')" value="${escapeAttribute(displayVal)}" class="w-full bg-transparent border-b border-transparent group-hover:border-slate-600 focus:border-blue-500 focus:outline-none text-slate-200 py-1 font-medium transition-colors"></div></div>`;
-                    chapterIndex++;
-                }
-                currentDate.setDate(currentDate.getDate() + 1);
-            }
-            container.innerHTML = html;
-        }
+$("restoreFile").addEventListener("change",async e=>{
+  const file = e.target.files[0];
+  if(!file) return;
 
-        function escapeAttribute(value) {
-            return String(value).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-        }
+  try{
+    const text = await file.text();
+    const parsed = JSON.parse(text);
 
-        function saveSchedule(dateIso) {
-            localStorage.setItem('neet_sched_' + dateIso, document.getElementById('date-' + dateIso).value);
-        }
+    const incoming = parsed.data || parsed;
 
-        function formatTime(totalMins) {
-            const m = ((totalMins % 1440) + 1440) % 1440;
-            let hours = Math.floor(m / 60);
-            const mins = m % 60;
-            const ampm = hours >= 12 ? 'PM' : 'AM';
-            hours = hours % 12 || 12;
-            return `${String(hours).padStart(2, '0')}:${String(mins).padStart(2, '0')} ${ampm}`;
-        }
+    if(!incoming || !Array.isArray(incoming.profiles)){
+      throw new Error("Invalid backup file.");
+    }
 
-        function loadStartTime() {
-            const saved = localStorage.getItem('neet_routine_start') || '03:00:PM';
-            const [h, m, a] = saved.split(':');
-            document.getElementById('time-hour').value = h;
-            document.getElementById('time-min').value = m;
-            document.getElementById('time-ampm').value = a;
-            const savedDuration = localStorage.getItem('neet_shift_duration_hours') || '14';
-            document.getElementById('shift-duration').value = savedDuration;
-        }
+    if(!confirm(
+      "Restore this backup? Current app data will be replaced. Download a current backup first."
+    )){
+      e.target.value = "";
+      return;
+    }
 
-        function loadMealSettings() {
-            let saved = {};
-            try { saved = JSON.parse(localStorage.getItem('neet_meal_settings') || '{}') || {}; } catch (e) { saved = {}; }
-            Object.keys(MEAL_DEFAULTS).forEach(key => {
-                const value = { ...MEAL_DEFAULTS[key], ...(saved[key] || {}) };
-                document.getElementById(`meal-${key}-time`).value = value.time;
-                document.getElementById(`meal-${key}-duration`).value = value.duration;
-                if (key === 'snacks') document.getElementById('meal-snacks-enabled').checked = value.enabled !== false;
-            });
-        }
+    const currentBackup = {
+      app:"Universal Command Center",
+      version:1,
+      exportedAt:new Date().toISOString(),
+      data:db
+    };
 
-        function readMealSettings() {
-            const settings = {};
-            Object.keys(MEAL_DEFAULTS).forEach(key => {
-                const time = document.getElementById(`meal-${key}-time`).value;
-                const rawDuration = parseInt(document.getElementById(`meal-${key}-duration`).value, 10);
-                const duration = Math.max(5, Math.min(120, Number.isFinite(rawDuration) ? rawDuration : MEAL_DEFAULTS[key].duration));
-                settings[key] = {
-                    time: time || MEAL_DEFAULTS[key].time,
-                    duration,
-                    enabled: key === 'snacks' ? document.getElementById('meal-snacks-enabled').checked : true
-                };
-            });
-            return settings;
-                    }
+    downloadFile(
+      "pre-restore-backup-"+Date.now()+".json",
+      JSON.stringify(currentBackup,null,2),
+      "application/json"
+    );
 
-        function saveMealSettingsAndGenerate() {
-            localStorage.setItem('neet_meal_settings', JSON.stringify(readMealSettings()));
-            document.getElementById('meal-settings-message').textContent = 'Meal settings saved on this device.';
-            generateRoutine();
-        }
+    db = incoming;
+    saveDB();
+    renderAll();
 
-        function addStudyCard(start, duration, blockNum, htmlParts) {
-            const savedType = localStorage.getItem('neet_routine_type_' + blockNum) || 'Study';
-            const savedBlock = localStorage.getItem('neet_routine_block_' + blockNum) || '';
-            const typeLabel = savedType === 'Break' ? '🧘 FREE BREAK' : '📘 STUDY';
-            const placeholder = savedType === 'Break' ? 'Rest / walk / refresh...' : 'Enter topic / questions...';
-            htmlParts.push(`
-                <div class="flex flex-col md:flex-row p-3 rounded-lg border bg-slate-800 border-slate-700 transition-colors">
-                    <div class="w-full md:w-24 text-sm font-medium text-slate-400 mb-2 md:mb-0 flex items-center">${formatTime(start)}</div>
-                    <div class="flex-grow pl-0 md:pl-4 flex flex-col md:flex-row md:items-center gap-2">
-                        <select id="routine-type-${blockNum}" onchange="saveRoutineType(${blockNum})" class="border border-slate-600 rounded p-1.5 text-xs font-bold bg-blue-900/50 text-blue-300 cursor-pointer">
-                            <option value="Study" ${savedType === 'Study' ? 'selected' : ''}>📘 STUDY</option>
-                            <option value="Break" ${savedType === 'Break' ? 'selected' : ''}>🧘 FREE BREAK</option>
-                        </select>
-                        <span class="text-xs font-bold px-2 py-1 rounded bg-slate-700 text-slate-300">${duration}m</span>
-                        <input type="text" id="routine-block-${blockNum}" onchange="saveRoutine(${blockNum})" value="${escapeAttribute(savedBlock)}" placeholder="${placeholder}" class="w-full bg-slate-900/50 border border-slate-600 rounded p-2 text-sm text-slate-100 focus:border-blue-500 focus:outline-none">
-                    </div>
-                </div>`);
-        }
+    $("backupMessage").textContent =
+      "Backup restored successfully.";
 
-        function generateRoutine() {
-            const h = document.getElementById('time-hour').value;
-            const m = document.getElementById('time-min').value;
-            const a = document.getElementById('time-ampm').value;
-            localStorage.setItem('neet_routine_start', `${h}:${m}:${a}`);
-            const durationInput = parseFloat(document.getElementById('shift-duration').value);
-            const shiftHours = Math.max(0.5, Math.min(24, Number.isFinite(durationInput) ? durationInput : 14));
-            document.getElementById('shift-duration').value = shiftHours;
-            localStorage.setItem('neet_shift_duration_hours', String(shiftHours));
+    alert("Backup restored successfully.");
+  }catch(error){
+    alert("Restore failed: "+error.message);
+  }
 
-            let hour24 = parseInt(h, 10);
-            if (a === 'PM' && hour24 !== 12) hour24 += 12;
-            if (a === 'AM' && hour24 === 12) hour24 = 0;
-            const shiftStart = hour24 * 60 + parseInt(m, 10);
-            const shiftEnd = shiftStart + Math.round(shiftHours * 60);
-            const savedSettings = readMealSettings();
-            localStorage.setItem('neet_meal_settings', JSON.stringify(savedSettings));
+  e.target.value = "";
+});
 
-            const meals = [];
-            Object.keys(MEAL_DEFAULTS).forEach(key => {
-                const setting = savedSettings[key];
-                if (!setting.enabled) return;
-                const [mealHour, mealMinute] = setting.time.split(':').map(Number);
-                if (!Number.isFinite(mealHour) || !Number.isFinite(mealMinute)) return;
-                let mealAt = mealHour * 60 + mealMinute;
-                while (mealAt < shiftStart) mealAt += 1440;
-                if (mealAt >= shiftStart && mealAt < shiftEnd) {
-                    meals.push({
-                        key,
-                        start: mealAt,
-                        duration: setting.duration,
-                        label: MEAL_DEFAULTS[key].label,
-                        icon: MEAL_DEFAULTS[key].icon
-                    });
-                }
-            });
-            meals.sort((x, y) => x.start - y.start);
+function csvEscape(value){
+  const str = String(value ?? "");
+  return '"'+str.replace(/"/g,'""')+'"';
+}
 
-            const acceptedMeals = [];
-            const warnings = [];
-            let occupiedUntil = shiftStart;
-            meals.forEach(meal => {
-                if (meal.start < occupiedUntil) {
-                    warnings.push(`${meal.label} overlaps the previous meal and was not added.`);
-                    return;
-                }
-                meal.end = Math.min(meal.start + meal.duration, shiftEnd);
-                acceptedMeals.push(meal);
-                occupiedUntil = meal.end;
-            });
+function downloadCSV(){
+  const p = activeProfile();
+  if(!p) return;
 
-            const parts = [];
-            let now = shiftStart;
-            let studyBlock = 1;
-            let studySinceBreak = 0;
-            let mealIndex = 0;
+  const rows = [[
+    "Date",
+    "Study Day",
+    "Shift Start",
+    "Shift End",
+    "Total Shift Minutes",
+    "Study Minutes",
+    "Completed Study Minutes",
+    "Total Break Minutes",
+    "Breakfast Minutes",
+    "Lunch Minutes",
+    "Snacks Minutes",
+    "Dinner Minutes",
+    "Other Break Minutes",
+    "Rest Day"
+  ]];
 
-            while (now < shiftEnd) {
-                const nextMeal = acceptedMeals[mealIndex];
-                if (nextMeal && now === nextMeal.start) {
-                    parts.push(`
-                        <div class="flex flex-col md:flex-row p-3 rounded-lg border border-orange-500 border-l-4 bg-orange-950/20">
-                            <div class="w-full md:w-24 text-sm font-medium text-orange-300 mb-2 md:mb-0 flex items-center">${formatTime(nextMeal.start)}</div>
-                            <div class="flex-grow pl-0 md:pl-4 flex items-center gap-3">
-                                <span class="text-xs font-bold px-2 py-1 rounded bg-orange-900/50 text-orange-200">${nextMeal.icon} ${nextMeal.label.toUpperCase()}</span>
-                                <span class="text-xs text-orange-200">${nextMeal.end - nextMeal.start} min meal break</span>
-                            </div>
-                        </div>`);
-                    now = nextMeal.end;
-                    studySinceBreak = 0;
-                    mealIndex++;
-                    continue;
-                }
+  Object.keys(p.days).sort().forEach(date=>{
+    const day = p.days[date];
+    const totals = calculateDayTotals(day);
 
-                const timeToMeal = nextMeal ? nextMeal.start - now : shiftEnd - now;
-                const remainingShift = shiftEnd - now;
-                const remainingStudy = 50 - studySinceBreak;
+    rows.push([
+      date,
+      day.studyDayNumber || "",
+      day.startDate+" "+day.startTime,
+      day.endDate+" "+day.endTime,
+      totals.shift,
+      totals.study,
+      totals.completedStudy,
+      totals.break,
+      totals.mealBreakdown.Breakfast,
+      totals.mealBreakdown.Lunch,
+      totals.mealBreakdown.Snacks,
+      totals.mealBreakdown.Dinner,
+      totals.otherBreak,
+      day.restDay ? "Yes" : "No"
+    ]);
+  });
 
-                if (studySinceBreak === 50 && timeToMeal > 0) {
-                    const breakDuration = Math.min(7, timeToMeal, remainingShift);
-                    if (breakDuration > 0) {
-                        parts.push(`<div class="flex items-center p-2 rounded border border-slate-700/50 bg-slate-800/30"><div class="w-24 text-xs text-slate-500">${formatTime(now)}</div><div class="flex-grow text-xs font-medium text-slate-400 pl-4">☕ Short Break (${breakDuration}m)</div></div>`);
-                        now += breakDuration;
-                        studySinceBreak = 0;
-                        continue;
-                    }
-                }
+  const csv = rows.map(row=>row.map(csvEscape).join(",")).join("\n");
 
-                const duration = Math.min(remainingStudy, timeToMeal, remainingShift);
-                if (duration <= 0) {
-                    if (nextMeal && now < nextMeal.start) {
-                        now = nextMeal.start;
-                        continue;
-                    }
-                    break;
-                }
-                addStudyCard(now, duration, studyBlock, parts);
-                now += duration;
-                studySinceBreak += duration;
-                studyBlock++;
-            }
+  downloadFile(
+    "study-report-"+p.name+"-"+p.year+".csv",
+    "\uFEFF"+csv,
+    "text/csv;charset=utf-8"
+  );
+}
 
-            parts.push(`<div class="flex items-center p-4 rounded-lg border-l-4 border-indigo-500 bg-indigo-950/30 mt-4"><div class="w-24 text-sm font-medium text-indigo-400">${formatTime(shiftEnd)}</div><div class="flex-grow font-black text-indigo-400 pl-4 uppercase tracking-wider">🛌 ${shiftHours}-Hour Shift Complete</div></div>`);
+function printReport(){
+  const p = activeProfile();
+  if(!p) return;
 
-            let notice = '';
-            if (warnings.length) notice += `<div class="p-3 rounded border border-amber-700 bg-amber-950/30 text-amber-200 text-sm mb-3">${warnings.map(escapeAttribute).join('<br>')}</div>`;
-            if (!acceptedMeals.length) notice += `<div class="p-3 rounded border border-slate-700 bg-slate-800 text-slate-300 text-sm mb-3">No enabled meal time falls inside this ${shiftHours}-hour shift. The full shift remains available for study and short breaks.</div>`;
-            document.getElementById('routine-container').innerHTML = notice + parts.join('');
-        }
+  const dates = Object.keys(p.days).sort();
 
-        function saveRoutineType(blockId) {
-            localStorage.setItem('neet_routine_type_' + blockId, document.getElementById('routine-type-' + blockId).value);
-            generateRoutine();
-        }
+  let html = `
+    <html>
+    <head>
+      <title>Study Report</title>
+      <style>
+        body{font-family:Arial,sans-serif;color:#111;padding:20px}
+        h1,h2{margin-bottom:6px}
+        table{width:100%;border-collapse:collapse;margin-top:15px}
+        th,td{border:1px solid #aaa;padding:7px;text-align:left;font-size:12px}
+        th{background:#eee}
+        .muted{color:#555}
+        @media print{button{display:none}}
+      </style>
+    </head>
+    <body>
+      <h1>${safeText(p.name)} ${safeText(p.year)} — Study Report</h1>
+      <p class="muted">Generated: ${new Date().toLocaleString()}</p>
+      <h2>Daily Summary</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Study Day</th>
+            <th>Shift</th>
+            <th>Study</th>
+            <th>Completed</th>
+            <th>Break</th>
+            <th>Meals</th>
+            <th>Other Break</th>
+          </tr>
+        </thead>
+        <tbody>
+  `;
 
-        function saveRoutine(blockId) {
-            localStorage.setItem('neet_routine_block_' + blockId, document.getElementById('routine-block-' + blockId).value);
-        }
+  dates.forEach(date=>{
+    const day = p.days[date];
+    const t = calculateDayTotals(day);
 
-        window.onload = () => {
-            generateSchedule();
-            loadStartTime();
-            loadMealSettings();
-        };
+    html += `
+      <tr>
+        <td>${dateLabel(date)}</td>
+        <td>${safeText(day.studyDayNumber || (day.restDay ? "Rest" : ""))}</td>
+        <td>${day.restDay ? "Rest Day" :
+          safeText(day.startDate+" "+day.startTime+" – "+day.endDate+" "+day.endTime)}</td>
+        <td>${formatHours(t.study)}</td>
+        <td>${formatHours(t.completedStudy)}</td>
+        <td>${formatHours(t.break)}</td>
+        <td>${formatHours(t.meals)}</td>
+        <td>${formatHours(t.otherBreak)}</td>
+      </tr>
+    `;
+  });
 
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js', { updateViaCache: 'none' })
-                    .then(registration => registration.update())
-                    .catch(error => console.error('Service worker registration failed:', error));
-            });
-        }
-    </script>
+  html += `
+        </tbody>
+      </table>
+
+      <h2>Meal-wise Summary</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Breakfast</th>
+            <th>Lunch</th>
+            <th>Snacks</th>
+            <th>Dinner</th>
+          </tr>
+        </thead>
+        <tbody>
+  `;
+
+  dates.forEach(date=>{
+    const t = calculateDayTotals(p.days[date]);
+
+    html += `
+      <tr>
+        <td>${dateLabel(date)}</td>
+        <td>${formatHours(t.mealBreakdown.Breakfast)}</td>
+        <td>${formatHours(t.mealBreakdown.Lunch)}</td>
+        <td>${formatHours(t.mealBreakdown.Snacks)}</td>
+        <td>${formatHours(t.mealBreakdown.Dinner)}</td>
+      </tr>
+    `;
+  });
+
+  html += `
+        </tbody>
+      </table>
+      <script>window.onload=()=>window.print();<\/script>
+    </body>
+    </html>
+  `;
+
+  const printWindow = window.open("","_blank");
+
+  if(!printWindow){
+    alert("Allow pop-ups to export the PDF report.");
+    return;
+  }
+
+  printWindow.document.open();
+  printWindow.document.write(html);
+  printWindow.document.close();
+}
+
+function getMonthlyTotals(profile,year,month){
+  const totals = {
+    study:0,
+    completedStudy:0,
+    break:0,
+    meals:0,
+    otherBreak:0,
+    shift:0,
+    mealBreakdown:{
+      Breakfast:0,
+      Lunch:0,
+      Snacks:0,
+      Dinner:0
+    }
+  };
+
+  Object.entries(profile.days || {}).forEach(([date,day])=>{
+    const d = new Date(date+"T12:00:00");
+
+    if(d.getFullYear()!==year || d.getMonth()!==month) return;
+
+    const t = calculateDayTotals(day);
+
+    totals.study += t.study;
+    totals.completedStudy += t.completedStudy;
+    totals.break += t.break;
+    totals.meals += t.meals;
+    totals.otherBreak += t.otherBreak;
+    totals.shift += t.shift;
+
+    Object.keys(totals.mealBreakdown).forEach(name=>{
+      totals.mealBreakdown[name] += t.mealBreakdown[name];
+    });
+  });
+
+  return totals;
+}
+
+function installServiceWorker(){
+  if(!("serviceWorker" in navigator)) return;
+
+  window.addEventListener("load",()=>{
+    navigator.serviceWorker.register("./sw.js",{
+      updateViaCache:"none"
+    }).then(registration=>{
+      registration.update();
+    }).catch(error=>{
+      console.error("Service worker registration failed:",error);
+    });
+  });
+}
+
+function initializeApp(){
+  loadDB();
+
+  renderAll();
+
+  installServiceWorker();
+
+  if("serviceWorker" in navigator){
+    navigator.serviceWorker.addEventListener("controllerchange",()=>{
+      console.log("App service worker updated.");
+    });
+  }
+}
+
+initializeApp();
+
+</script>
 </body>
 </html>
+    
