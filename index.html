@@ -21,7 +21,7 @@
         <div class="p-4 flex flex-col md:flex-row justify-between md:items-center gap-4">
             <div>
                 <h1 class="text-xl md:text-2xl font-bold tracking-tight">🎯 NEET 2027 COMMAND CENTER</h1>
-                <p class="text-sm text-slate-400 mt-1">Operation: 140+ Physics | Time: 14-Hour Shift</p>
+                <p class="text-sm text-slate-400 mt-1">Operation: 140+ Physics | Customizable Study Shift</p>
             </div>
             <div class="flex space-x-2">
                 <button id="tab-schedule" onclick="switchTab('schedule')" class="px-4 py-2 rounded font-medium bg-blue-600 text-white transition-colors">Master Schedule</button>
@@ -49,6 +49,9 @@
                     <select id="time-ampm" aria-label="Start AM or PM" class="bg-slate-900 border border-slate-600 text-white p-2 rounded">
                         <option value="AM">AM</option><option value="PM">PM</option>
                     </select>
+                    <label for="shift-duration" class="text-sm font-semibold">Shift duration:</label>
+                    <input id="shift-duration" type="number" min="0.5" max="24" step="0.5" value="14" aria-label="Study shift duration in hours" class="w-24 bg-slate-900 border border-slate-600 text-white p-2 rounded">
+                    <span class="text-sm text-slate-400">hours</span>
                     <button onclick="generateRoutine()" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded">Update Routine</button>
                 </div>
             </section>
@@ -207,6 +210,8 @@
             document.getElementById('time-hour').value = h;
             document.getElementById('time-min').value = m;
             document.getElementById('time-ampm').value = a;
+            const savedDuration = localStorage.getItem('neet_shift_duration_hours') || '14';
+            document.getElementById('shift-duration').value = savedDuration;
         }
 
         function loadMealSettings() {
@@ -233,7 +238,7 @@
                 };
             });
             return settings;
-        }
+                    }
 
         function saveMealSettingsAndGenerate() {
             localStorage.setItem('neet_meal_settings', JSON.stringify(readMealSettings()));
@@ -265,12 +270,16 @@
             const m = document.getElementById('time-min').value;
             const a = document.getElementById('time-ampm').value;
             localStorage.setItem('neet_routine_start', `${h}:${m}:${a}`);
+            const durationInput = parseFloat(document.getElementById('shift-duration').value);
+            const shiftHours = Math.max(0.5, Math.min(24, Number.isFinite(durationInput) ? durationInput : 14));
+            document.getElementById('shift-duration').value = shiftHours;
+            localStorage.setItem('neet_shift_duration_hours', String(shiftHours));
 
             let hour24 = parseInt(h, 10);
             if (a === 'PM' && hour24 !== 12) hour24 += 12;
             if (a === 'AM' && hour24 === 12) hour24 = 0;
             const shiftStart = hour24 * 60 + parseInt(m, 10);
-            const shiftEnd = shiftStart + 840;
+            const shiftEnd = shiftStart + Math.round(shiftHours * 60);
             const savedSettings = readMealSettings();
             localStorage.setItem('neet_meal_settings', JSON.stringify(savedSettings));
 
@@ -358,11 +367,11 @@
                 studyBlock++;
             }
 
-            parts.push(`<div class="flex items-center p-4 rounded-lg border-l-4 border-indigo-500 bg-indigo-950/30 mt-4"><div class="w-24 text-sm font-medium text-indigo-400">${formatTime(shiftEnd)}</div><div class="flex-grow font-black text-indigo-400 pl-4 uppercase tracking-wider">🛌 14-Hour Shift Complete</div></div>`);
+            parts.push(`<div class="flex items-center p-4 rounded-lg border-l-4 border-indigo-500 bg-indigo-950/30 mt-4"><div class="w-24 text-sm font-medium text-indigo-400">${formatTime(shiftEnd)}</div><div class="flex-grow font-black text-indigo-400 pl-4 uppercase tracking-wider">🛌 ${shiftHours}-Hour Shift Complete</div></div>`);
 
             let notice = '';
             if (warnings.length) notice += `<div class="p-3 rounded border border-amber-700 bg-amber-950/30 text-amber-200 text-sm mb-3">${warnings.map(escapeAttribute).join('<br>')}</div>`;
-            if (!acceptedMeals.length) notice += `<div class="p-3 rounded border border-slate-700 bg-slate-800 text-slate-300 text-sm mb-3">No enabled meal time falls inside this 14-hour shift. The full shift remains available for study and short breaks.</div>`;
+            if (!acceptedMeals.length) notice += `<div class="p-3 rounded border border-slate-700 bg-slate-800 text-slate-300 text-sm mb-3">No enabled meal time falls inside this ${shiftHours}-hour shift. The full shift remains available for study and short breaks.</div>`;
             document.getElementById('routine-container').innerHTML = notice + parts.join('');
         }
 
@@ -391,6 +400,3 @@
     </script>
 </body>
 </html>
-
-            
-    
