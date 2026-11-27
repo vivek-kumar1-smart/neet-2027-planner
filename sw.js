@@ -1,93 +1,61 @@
-const CACHE_NAME = 'neet-planner-v2';
 
-const APP_SHELL = [
-  './',
-  './index.html',
-  './manifest.json'
+const CACHE_NAME = "universal-command-center-v2";
+
+const APP_FILES = [
+  "./",
+  "./index.html",
+  "./manifest.json"
 ];
 
-// Install new service worker
-self.addEventListener('install', (event) => {
+self.addEventListener("install", event => {
   event.waitUntil(
     caches.open(CACHE_NAME)
-      .then((cache) => cache.addAll(APP_SHELL))
+      .then(cache => cache.addAll(APP_FILES))
       .then(() => self.skipWaiting())
   );
 });
 
-// Activate new service worker
-self.addEventListener('activate', (event) => {
+self.addEventListener("activate", event => {
   event.waitUntil(
     caches.keys()
-      .then((cacheNames) => {
-        return Promise.all(
-          cacheNames.map((cacheName) => {
-            if (
-              cacheName.startsWith('neet-planner-') &&
-              cacheName !== CACHE_NAME
-            ) {
-              return caches.delete(cacheName);
-            }
-          })
-        );
-      })
+      .then(names =>
+        Promise.all(
+          names
+            .filter(name => name.startsWith("neet-planner-") ||
+                            name.startsWith("universal-command-center-"))
+            .filter(name => name !== CACHE_NAME)
+            .map(name => caches.delete(name))
+        )
+      )
       .then(() => self.clients.claim())
   );
 });
 
-// Fetch strategy
-self.addEventListener('fetch', (event) => {
+self.addEventListener("fetch", event => {
   const request = event.request;
 
-  // Handle only GET requests
-  if (request.method !== 'GET') return;
+  if (request.method !== "GET") return;
 
-  // Network-first strategy for page navigation
-  if (request.mode === 'navigate') {
+  if (request.mode === "navigate") {
     event.respondWith(
       fetch(request)
-        .then((response) => {
-          const responseClone = response.clone();
-
+        .then(response => {
+          const copy = response.clone();
           caches.open(CACHE_NAME)
-            .then((cache) => {
-              cache.put('./index.html', responseClone);
-            });
-
+            .then(cache => cache.put("./index.html", copy));
           return response;
         })
-        .catch(() => {
-          return caches.match('./index.html');
-        })
+        .catch(() => caches.match("./index.html"))
     );
-
     return;
   }
 
-  // Cache-first strategy for other same-origin files
-  const requestURL = new URL(request.url);
+  const url = new URL(request.url);
 
-  if (requestURL.origin === self.location.origin) {
+  if (url.origin === self.location.origin) {
     event.respondWith(
       caches.match(request)
-        .then((cachedResponse) => {
-          if (cachedResponse) {
-            return cachedResponse;
-          }
-
-          return fetch(request).then((response) => {
-            if (response && response.status === 200) {
-              const responseClone = response.clone();
-
-              caches.open(CACHE_NAME)
-                .then((cache) => {
-                  cache.put(request, responseClone);
-                });
-            }
-
-            return response;
-          });
-        })
+        .then(cached => cached || fetch(request))
     );
   }
 });
