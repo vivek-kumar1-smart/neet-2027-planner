@@ -4,12 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NEET 2027 Command Center</title>
-    
-    <!-- PWA Setup -->
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0f172a">
-    
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         ::-webkit-scrollbar { width: 6px; }
@@ -17,10 +13,10 @@
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: #475569; }
         body { background-color: #0f172a; color: #f8fafc; font-family: system-ui, -apple-system, sans-serif; }
+        input[type="time"], input[type="number"] { color-scheme: dark; }
     </style>
 </head>
 <body class="antialiased min-h-screen">
-
     <div class="sticky top-0 z-50 bg-slate-900 border-b border-slate-700 shadow-md">
         <div class="p-4 flex flex-col md:flex-row justify-between md:items-center gap-4">
             <div>
@@ -35,36 +31,75 @@
     </div>
 
     <main class="w-full max-w-5xl mx-auto p-4 md:p-6 pb-20">
-        
-        <!-- TAB 1: MASTER SCHEDULE -->
         <div id="view-schedule" class="block">
-            <div id="schedule-container" class="space-y-6 relative z-10">
-                <!-- Injected via JS -->
-            </div>
+            <div id="schedule-container" class="space-y-6 relative z-10"></div>
         </div>
 
-        <!-- TAB 2: DAILY ROUTINE -->
         <div id="view-routine" class="hidden">
-            <div class="bg-slate-800 rounded-lg p-4 md:p-6 shadow border border-slate-700 mb-6">
-                <h2 class="text-lg font-bold mb-4">Set Your Start Time</h2>
+            <section class="bg-slate-800 rounded-lg p-4 md:p-6 shadow border border-slate-700 mb-5">
+                <h2 class="text-lg font-bold mb-4">Set Your Study Start Time</h2>
                 <div class="flex flex-wrap gap-3 items-center">
-                    <select id="time-hour" class="bg-slate-900 border border-slate-600 text-white p-2 rounded focus:outline-none focus:border-blue-500">
+                    <select id="time-hour" aria-label="Start hour" class="bg-slate-900 border border-slate-600 text-white p-2 rounded">
                         <option value="01">01</option><option value="02">02</option><option value="03">03</option><option value="04">04</option><option value="05">05</option><option value="06">06</option><option value="07">07</option><option value="08">08</option><option value="09">09</option><option value="10">10</option><option value="11">11</option><option value="12">12</option>
                     </select>
                     <span class="font-bold">:</span>
-                    <select id="time-min" class="bg-slate-900 border border-slate-600 text-white p-2 rounded focus:outline-none focus:border-blue-500">
+                    <select id="time-min" aria-label="Start minutes" class="bg-slate-900 border border-slate-600 text-white p-2 rounded">
                         <option value="00">00</option><option value="15">15</option><option value="30">30</option><option value="45">45</option>
                     </select>
-                    <select id="time-ampm" class="bg-slate-900 border border-slate-600 text-white p-2 rounded focus:outline-none focus:border-blue-500">
+                    <select id="time-ampm" aria-label="Start AM or PM" class="bg-slate-900 border border-slate-600 text-white p-2 rounded">
                         <option value="AM">AM</option><option value="PM">PM</option>
                     </select>
-                    <button onclick="generateRoutine()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded transition-colors ml-auto md:ml-4">Generate 14-Hr Shift</button>
+                    <button onclick="generateRoutine()" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded">Update Routine</button>
                 </div>
-            </div>
+            </section>
 
-            <div id="routine-container" class="space-y-3">
-                <!-- Injected via JS -->
-            </div>
+            <section class="bg-slate-800 rounded-lg p-4 md:p-6 shadow border border-slate-700 mb-5">
+                <div class="mb-4">
+                    <h2 class="text-lg font-bold">Customize Your Meal Timings</h2>
+                    <p class="text-sm text-slate-400 mt-1">Meal times are fixed to the clock times you choose. They will not be automatically pushed to midnight.</p>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div class="bg-slate-900/70 rounded-lg p-3 border border-slate-700">
+                        <label for="meal-breakfast-time" class="block text-sm font-semibold mb-2">🍳 Breakfast</label>
+                        <div class="flex gap-2">
+                            <input id="meal-breakfast-time" type="time" value="08:00" class="min-w-0 flex-1 bg-slate-800 border border-slate-600 rounded p-2">
+                            <input id="meal-breakfast-duration" type="number" min="5" max="120" value="30" aria-label="Breakfast duration in minutes" class="w-24 bg-slate-800 border border-slate-600 rounded p-2">
+                        </div>
+                        <p class="text-xs text-slate-500 mt-1">Time / duration (minutes)</p>
+                    </div>
+                    <div class="bg-slate-900/70 rounded-lg p-3 border border-slate-700">
+                        <label for="meal-lunch-time" class="block text-sm font-semibold mb-2">🍱 Lunch</label>
+                        <div class="flex gap-2">
+                            <input id="meal-lunch-time" type="time" value="13:00" class="min-w-0 flex-1 bg-slate-800 border border-slate-600 rounded p-2">
+                            <input id="meal-lunch-duration" type="number" min="5" max="120" value="40" aria-label="Lunch duration in minutes" class="w-24 bg-slate-800 border border-slate-600 rounded p-2">
+                        </div>
+                        <p class="text-xs text-slate-500 mt-1">Time / duration (minutes)</p>
+                    </div>
+                    <div class="bg-slate-900/70 rounded-lg p-3 border border-slate-700">
+                        <div class="flex items-center justify-between gap-2 mb-2">
+                            <label for="meal-snacks-time" class="block text-sm font-semibold">🥪 Snacks</label>
+                            <label class="flex items-center gap-2 text-xs text-slate-300"><input id="meal-snacks-enabled" type="checkbox" checked class="accent-blue-500"> Include</label>
+                        </div>
+                        <div class="flex gap-2">
+                            <input id="meal-snacks-time" type="time" value="17:00" class="min-w-0 flex-1 bg-slate-800 border border-slate-600 rounded p-2">
+                            <input id="meal-snacks-duration" type="number" min="5" max="120" value="15" aria-label="Snacks duration in minutes" class="w-24 bg-slate-800 border border-slate-600 rounded p-2">
+                        </div>
+                        <p class="text-xs text-slate-500 mt-1">Turn Include off to use this time for study</p>
+                    </div>
+                    <div class="bg-slate-900/70 rounded-lg p-3 border border-slate-700">
+                        <label for="meal-dinner-time" class="block text-sm font-semibold mb-2">🍽️ Dinner</label>
+                        <div class="flex gap-2">
+                            <input id="meal-dinner-time" type="time" value="20:00" class="min-w-0 flex-1 bg-slate-800 border border-slate-600 rounded p-2">
+                            <input id="meal-dinner-duration" type="number" min="5" max="120" value="40" aria-label="Dinner duration in minutes" class="w-24 bg-slate-800 border border-slate-600 rounded p-2">
+                        </div>
+                        <p class="text-xs text-slate-500 mt-1">Time / duration (minutes)</p>
+                    </div>
+                </div>
+                <button onclick="saveMealSettingsAndGenerate()" class="mt-4 w-full sm:w-auto px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded">Save Meal Settings & Generate Routine</button>
+                <p id="meal-settings-message" role="status" class="text-xs text-emerald-300 mt-3"></p>
+            </section>
+
+            <div id="routine-container" class="space-y-3"></div>
         </div>
     </main>
 
@@ -85,6 +120,13 @@
             "[BIO] Microbes", "[PHY] Semiconductors", "[BIO] Biotech: Principles", "[BIO] Biotech: Apps", "[BIO] Organisms & Pops", "[BIO] Ecosystem", "[BIO] Biodiversity"
         ];
 
+        const MEAL_DEFAULTS = {
+            breakfast: { time: "08:00", duration: 30, enabled: true, label: "Breakfast", icon: "🍳" },
+            lunch:     { time: "13:00", duration: 40, enabled: true, label: "Lunch", icon: "🍱" },
+            snacks:    { time: "17:00", duration: 15, enabled: true, label: "Snacks", icon: "🥪" },
+            dinner:    { time: "20:00", duration: 40, enabled: true, label: "Dinner", icon: "🍽️" }
+        };
+
         function switchTab(tab) {
             const btnSched = document.getElementById('tab-schedule');
             const btnRout = document.getElementById('tab-routine');
@@ -101,66 +143,40 @@
                 btnSched.className = "px-4 py-2 rounded font-medium bg-slate-800 text-slate-300 hover:bg-slate-700 transition-colors";
                 viewRout.classList.remove('hidden'); viewRout.classList.add('block');
                 viewSched.classList.remove('block'); viewSched.classList.add('hidden');
-                
-                let savedTime = localStorage.getItem('neet_routine_start') || '03:00:PM';
-                let [h, m, a] = savedTime.split(':');
-                document.getElementById('time-hour').value = h;
-                document.getElementById('time-min').value = m;
-                document.getElementById('time-ampm').value = a;
+                loadStartTime();
+                loadMealSettings();
                 generateRoutine();
             }
         }
 
         function generateSchedule() {
             const container = document.getElementById('schedule-container');
-            let currentDate = new Date(2026, 10, 27); 
-            const endDate = new Date(2027, 4, 1);     
-            
+            let currentDate = new Date(2026, 10, 27);
+            const endDate = new Date(2027, 4, 1);
             let html = '';
             let currentMonth = -1;
             let chapterIndex = 0;
-
             const monthNames = ["JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE", "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"];
             const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
             while (currentDate <= endDate) {
                 const m = currentDate.getMonth();
                 const d = currentDate.getDay();
-                
                 if (m !== currentMonth) {
-                    html += `
-                        <div class="sticky top-[70px] md:top-[80px] bg-slate-900/95 backdrop-blur-sm pt-4 pb-2 z-20 border-b border-slate-700">
-                            <h2 class="text-xl font-black text-slate-200 tracking-wider">${monthNames[m]} ${currentDate.getFullYear()}</h2>
-                        </div>`;
+                    html += `<div class="sticky top-[70px] md:top-[80px] bg-slate-900/95 backdrop-blur-sm pt-4 pb-2 z-20 border-b border-slate-700"><h2 class="text-xl font-black text-slate-200 tracking-wider">${monthNames[m]} ${currentDate.getFullYear()}</h2></div>`;
                     currentMonth = m;
                 }
-
                 const dateStr = `${dayNames[d]}, ${monthNames[m].substring(0,3)} ${currentDate.getDate()}, ${currentDate.getFullYear()}`;
-                const isoDate = currentDate.toISOString().split('T')[0];
-                let savedVal = localStorage.getItem('neet_sched_' + isoDate) || "";
+                const isoDate = `${currentDate.getFullYear()}-${String(m+1).padStart(2,'0')}-${String(currentDate.getDate()).padStart(2,'0')}`;
+                const savedVal = localStorage.getItem('neet_sched_' + isoDate) || "";
 
                 if (d === 0) {
-                    html += `
-                        <div class="flex flex-col md:flex-row p-3 rounded-lg border border-red-900/50 bg-red-950/20">
-                            <div class="w-full md:w-32 flex-shrink-0 font-medium text-red-400 mb-2 md:mb-0">${dateStr}</div>
-                            <div class="flex-grow font-bold text-red-400 pl-0 md:pl-4">⚠️ SUNDAY: REVISION & MOCK TEST</div>
-                        </div>`;
+                    html += `<div class="flex flex-col md:flex-row p-3 rounded-lg border border-red-900/50 bg-red-950/20"><div class="w-full md:w-32 flex-shrink-0 font-medium text-red-400 mb-2 md:mb-0">${dateStr}</div><div class="flex-grow font-bold text-red-400 pl-0 md:pl-4">⚠️ SUNDAY: REVISION & MOCK TEST</div></div>`;
                 } else {
-                    let defaultChap = chapterIndex < chapters.length ? chapters[chapterIndex] : "Revision / Mock";
-                    let displayVal = savedVal !== "" ? savedVal : defaultChap;
-                    let phase = currentDate < new Date(2027, 2, 1) ? "1" : (currentDate < new Date(2027, 3, 15) ? "2" : "3");
-
-                    html += `
-                        <div class="flex flex-col md:flex-row p-3 rounded-lg border border-slate-700 bg-slate-800/50 hover:bg-slate-800 transition-colors group">
-                            <div class="w-full md:w-32 flex-shrink-0 font-medium text-slate-400 mb-2 md:mb-0 flex items-center gap-2">
-                                <span>${dateStr}</span>
-                            </div>
-                            <div class="flex-grow pl-0 md:pl-4 flex items-center gap-3">
-                                <span class="text-[10px] font-bold px-2 py-1 rounded bg-slate-700 text-slate-300 tracking-wider">PHASE ${phase}</span>
-                                <input type="text" id="date-${isoDate}" onchange="saveSchedule('${isoDate}')" value="${displayVal}" 
-                                       class="w-full bg-transparent border-b border-transparent group-hover:border-slate-600 focus:border-blue-500 focus:outline-none text-slate-200 py-1 font-medium transition-colors">
-                            </div>
-                        </div>`;
+                    const defaultChap = chapterIndex < chapters.length ? chapters[chapterIndex] : "Revision / Mock";
+                    const displayVal = savedVal !== "" ? savedVal : defaultChap;
+                    const phase = currentDate < new Date(2027, 2, 1) ? "1" : (currentDate < new Date(2027, 3, 15) ? "2" : "3");
+                    html += `<div class="flex flex-col md:flex-row p-3 rounded-lg border border-slate-700 bg-slate-800/50 hover:bg-slate-800 transition-colors group"><div class="w-full md:w-32 flex-shrink-0 font-medium text-slate-400 mb-2 md:mb-0 flex items-center gap-2"><span>${dateStr}</span></div><div class="flex-grow pl-0 md:pl-4 flex items-center gap-3"><span class="text-[10px] font-bold px-2 py-1 rounded bg-slate-700 text-slate-300 tracking-wider">PHASE ${phase}</span><input type="text" id="date-${isoDate}" onchange="saveSchedule('${isoDate}')" value="${escapeAttribute(displayVal)}" class="w-full bg-transparent border-b border-transparent group-hover:border-slate-600 focus:border-blue-500 focus:outline-none text-slate-200 py-1 font-medium transition-colors"></div></div>`;
                     chapterIndex++;
                 }
                 currentDate.setDate(currentDate.getDate() + 1);
@@ -168,18 +184,80 @@
             container.innerHTML = html;
         }
 
+        function escapeAttribute(value) {
+            return String(value).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        }
+
         function saveSchedule(dateIso) {
             localStorage.setItem('neet_sched_' + dateIso, document.getElementById('date-' + dateIso).value);
         }
 
         function formatTime(totalMins) {
-            let m = totalMins % (24 * 60);
+            const m = ((totalMins % 1440) + 1440) % 1440;
             let hours = Math.floor(m / 60);
-            let mins = m % 60;
-            let ampm = hours >= 12 ? 'PM' : 'AM';
-            hours = hours % 12;
-            hours = hours ? hours : 12; 
-            return `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')} ${ampm}`;
+            const mins = m % 60;
+            const ampm = hours >= 12 ? 'PM' : 'AM';
+            hours = hours % 12 || 12;
+            return `${String(hours).padStart(2, '0')}:${String(mins).padStart(2, '0')} ${ampm}`;
+        }
+
+        function loadStartTime() {
+            const saved = localStorage.getItem('neet_routine_start') || '03:00:PM';
+            const [h, m, a] = saved.split(':');
+            document.getElementById('time-hour').value = h;
+            document.getElementById('time-min').value = m;
+            document.getElementById('time-ampm').value = a;
+        }
+
+        function loadMealSettings() {
+            let saved = {};
+            try { saved = JSON.parse(localStorage.getItem('neet_meal_settings') || '{}') || {}; } catch (e) { saved = {}; }
+            Object.keys(MEAL_DEFAULTS).forEach(key => {
+                const value = { ...MEAL_DEFAULTS[key], ...(saved[key] || {}) };
+                document.getElementById(`meal-${key}-time`).value = value.time;
+                document.getElementById(`meal-${key}-duration`).value = value.duration;
+                if (key === 'snacks') document.getElementById('meal-snacks-enabled').checked = value.enabled !== false;
+            });
+        }
+
+        function readMealSettings() {
+            const settings = {};
+            Object.keys(MEAL_DEFAULTS).forEach(key => {
+                const time = document.getElementById(`meal-${key}-time`).value;
+                const rawDuration = parseInt(document.getElementById(`meal-${key}-duration`).value, 10);
+                const duration = Math.max(5, Math.min(120, Number.isFinite(rawDuration) ? rawDuration : MEAL_DEFAULTS[key].duration));
+                settings[key] = {
+                    time: time || MEAL_DEFAULTS[key].time,
+                    duration,
+                    enabled: key === 'snacks' ? document.getElementById('meal-snacks-enabled').checked : true
+                };
+            });
+            return settings;
+        }
+
+        function saveMealSettingsAndGenerate() {
+            localStorage.setItem('neet_meal_settings', JSON.stringify(readMealSettings()));
+            document.getElementById('meal-settings-message').textContent = 'Meal settings saved on this device.';
+            generateRoutine();
+        }
+
+        function addStudyCard(start, duration, blockNum, htmlParts) {
+            const savedType = localStorage.getItem('neet_routine_type_' + blockNum) || 'Study';
+            const savedBlock = localStorage.getItem('neet_routine_block_' + blockNum) || '';
+            const typeLabel = savedType === 'Break' ? '🧘 FREE BREAK' : '📘 STUDY';
+            const placeholder = savedType === 'Break' ? 'Rest / walk / refresh...' : 'Enter topic / questions...';
+            htmlParts.push(`
+                <div class="flex flex-col md:flex-row p-3 rounded-lg border bg-slate-800 border-slate-700 transition-colors">
+                    <div class="w-full md:w-24 text-sm font-medium text-slate-400 mb-2 md:mb-0 flex items-center">${formatTime(start)}</div>
+                    <div class="flex-grow pl-0 md:pl-4 flex flex-col md:flex-row md:items-center gap-2">
+                        <select id="routine-type-${blockNum}" onchange="saveRoutineType(${blockNum})" class="border border-slate-600 rounded p-1.5 text-xs font-bold bg-blue-900/50 text-blue-300 cursor-pointer">
+                            <option value="Study" ${savedType === 'Study' ? 'selected' : ''}>📘 STUDY</option>
+                            <option value="Break" ${savedType === 'Break' ? 'selected' : ''}>🧘 FREE BREAK</option>
+                        </select>
+                        <span class="text-xs font-bold px-2 py-1 rounded bg-slate-700 text-slate-300">${duration}m</span>
+                        <input type="text" id="routine-block-${blockNum}" onchange="saveRoutine(${blockNum})" value="${escapeAttribute(savedBlock)}" placeholder="${placeholder}" class="w-full bg-slate-900/50 border border-slate-600 rounded p-2 text-sm text-slate-100 focus:border-blue-500 focus:outline-none">
+                    </div>
+                </div>`);
         }
 
         function generateRoutine() {
@@ -188,111 +266,131 @@
             const a = document.getElementById('time-ampm').value;
             localStorage.setItem('neet_routine_start', `${h}:${m}:${a}`);
 
-            let hour24 = parseInt(h);
+            let hour24 = parseInt(h, 10);
             if (a === 'PM' && hour24 !== 12) hour24 += 12;
             if (a === 'AM' && hour24 === 12) hour24 = 0;
-            
-            const startMins = (hour24 * 60) + parseInt(m);
-            const container = document.getElementById('routine-container');
-            let html = '';
-            
-            let elapsed = 0;
-            let currentMins = startMins;
-            let blockNum = 1;
+            const shiftStart = hour24 * 60 + parseInt(m, 10);
+            const shiftEnd = shiftStart + 840;
+            const savedSettings = readMealSettings();
+            localStorage.setItem('neet_meal_settings', JSON.stringify(savedSettings));
 
-            while (elapsed < 840) {
-                let blockDur = 50;
-                if (elapsed + blockDur > 840) blockDur = 840 - elapsed;
+            const meals = [];
+            Object.keys(MEAL_DEFAULTS).forEach(key => {
+                const setting = savedSettings[key];
+                if (!setting.enabled) return;
+                const [mealHour, mealMinute] = setting.time.split(':').map(Number);
+                if (!Number.isFinite(mealHour) || !Number.isFinite(mealMinute)) return;
+                let mealAt = mealHour * 60 + mealMinute;
+                while (mealAt < shiftStart) mealAt += 1440;
+                if (mealAt >= shiftStart && mealAt < shiftEnd) {
+                    meals.push({
+                        key,
+                        start: mealAt,
+                        duration: setting.duration,
+                        label: MEAL_DEFAULTS[key].label,
+                        icon: MEAL_DEFAULTS[key].icon
+                    });
+                }
+            });
+            meals.sort((x, y) => x.start - y.start);
 
-                let savedType = localStorage.getItem('neet_routine_type_' + blockNum) || "Study";
-                let savedBlock = localStorage.getItem('neet_routine_block_' + blockNum) || "";
+            const acceptedMeals = [];
+            const warnings = [];
+            let occupiedUntil = shiftStart;
+            meals.forEach(meal => {
+                if (meal.start < occupiedUntil) {
+                    warnings.push(`${meal.label} overlaps the previous meal and was not added.`);
+                    return;
+                }
+                meal.end = Math.min(meal.start + meal.duration, shiftEnd);
+                acceptedMeals.push(meal);
+                occupiedUntil = meal.end;
+            });
 
-                // Dynamic UI Setup Based on Dropdown Selection
-                let bgClass = "bg-slate-800 border-slate-700";
-                let textClass = "text-slate-100";
-                let badgeClass = "bg-blue-900/50 text-blue-300";
-                let placeholderText = "Enter topic / Questions...";
+            const parts = [];
+            let now = shiftStart;
+            let studyBlock = 1;
+            let studySinceBreak = 0;
+            let mealIndex = 0;
 
-                if (["Dinner", "Lunch", "Breakfast"].includes(savedType)) {
-                    bgClass = "bg-orange-950/20 border-orange-500 border-l-4";
-                    badgeClass = "bg-orange-900/50 text-orange-300";
-                    placeholderText = "Watch Tarak Mehta / Eat...";
-                } else if (savedType === "Snacks") {
-                    bgClass = "bg-yellow-950/20 border-yellow-500 border-l-4";
-                    badgeClass = "bg-yellow-900/50 text-yellow-300";
-                    placeholderText = "Light snack time...";
-                } else if (savedType === "Break") {
-                    bgClass = "bg-emerald-950/20 border-emerald-500 border-l-4";
-                    badgeClass = "bg-emerald-900/50 text-emerald-300";
-                    placeholderText = "Relax / Free Fire break...";
+            while (now < shiftEnd) {
+                const nextMeal = acceptedMeals[mealIndex];
+                if (nextMeal && now === nextMeal.start) {
+                    parts.push(`
+                        <div class="flex flex-col md:flex-row p-3 rounded-lg border border-orange-500 border-l-4 bg-orange-950/20">
+                            <div class="w-full md:w-24 text-sm font-medium text-orange-300 mb-2 md:mb-0 flex items-center">${formatTime(nextMeal.start)}</div>
+                            <div class="flex-grow pl-0 md:pl-4 flex items-center gap-3">
+                                <span class="text-xs font-bold px-2 py-1 rounded bg-orange-900/50 text-orange-200">${nextMeal.icon} ${nextMeal.label.toUpperCase()}</span>
+                                <span class="text-xs text-orange-200">${nextMeal.end - nextMeal.start} min meal break</span>
+                            </div>
+                        </div>`);
+                    now = nextMeal.end;
+                    studySinceBreak = 0;
+                    mealIndex++;
+                    continue;
                 }
 
-                html += `
-                    <div class="flex flex-col md:flex-row p-3 rounded-lg border ${bgClass} transition-colors">
-                        <div class="w-full md:w-24 text-sm font-medium text-slate-400 mb-2 md:mb-0 flex items-center">${formatTime(currentMins)}</div>
-                        <div class="flex-grow pl-0 md:pl-4 flex flex-col md:flex-row md:items-center gap-2">
-                            
-                            <!-- DYNAMIC TYPE SELECTOR -->
-                            <select id="routine-type-${blockNum}" onchange="saveRoutineType(${blockNum})" class="border border-slate-600 rounded p-1.5 text-xs font-bold focus:outline-none focus:border-blue-500 ${badgeClass} cursor-pointer">
-                                <option value="Study" ${savedType === 'Study' ? 'selected' : ''}>📘 STUDY</option>
-                                <option value="Breakfast" ${savedType === 'Breakfast' ? 'selected' : ''}>🍳 BREAKFAST</option>
-                                <option value="Lunch" ${savedType === 'Lunch' ? 'selected' : ''}>🍱 LUNCH</option>
-                                <option value="Snacks" ${savedType === 'Snacks' ? 'selected' : ''}>🥪 SNACKS</option>
-                                <option value="Dinner" ${savedType === 'Dinner' ? 'selected' : ''}>🍔 DINNER</option>
-                                <option value="Break" ${savedType === 'Break' ? 'selected' : ''}>🧘 FREE BREAK</option>
-                            </select>
+                const timeToMeal = nextMeal ? nextMeal.start - now : shiftEnd - now;
+                const remainingShift = shiftEnd - now;
+                const remainingStudy = 50 - studySinceBreak;
 
-                            <span class="text-xs font-bold px-2 py-1 rounded bg-slate-800 text-slate-400 hidden md:inline-block">${blockDur}m</span>
-
-                            <input type="text" id="routine-block-${blockNum}" onchange="saveRoutine(${blockNum})" value="${savedBlock}" placeholder="${placeholderText}" 
-                                   class="w-full bg-slate-900/50 border border-slate-600 rounded p-2 text-sm ${textClass} focus:border-blue-500 focus:outline-none">
-                        </div>
-                    </div>`;
-                
-                currentMins += blockDur; elapsed += blockDur;
-
-                if (elapsed < 840) {
-                    let breakDur = 7;
-                    if (elapsed + breakDur > 840) breakDur = 840 - elapsed;
-
-                    if (breakDur > 0) {
-                        html += `
-                            <div class="flex items-center p-2 rounded border border-slate-700/50 bg-slate-800/30">
-                                <div class="w-24 text-xs text-slate-500">${formatTime(currentMins)}</div>
-                                <div class="flex-grow text-xs font-medium text-slate-400 pl-4">☕ Short Break (${breakDur}m)</div>
-                            </div>`;
-                        currentMins += breakDur; elapsed += breakDur;
+                if (studySinceBreak === 50 && timeToMeal > 0) {
+                    const breakDuration = Math.min(7, timeToMeal, remainingShift);
+                    if (breakDuration > 0) {
+                        parts.push(`<div class="flex items-center p-2 rounded border border-slate-700/50 bg-slate-800/30"><div class="w-24 text-xs text-slate-500">${formatTime(now)}</div><div class="flex-grow text-xs font-medium text-slate-400 pl-4">☕ Short Break (${breakDuration}m)</div></div>`);
+                        now += breakDuration;
+                        studySinceBreak = 0;
+                        continue;
                     }
                 }
-                blockNum++;
+
+                const duration = Math.min(remainingStudy, timeToMeal, remainingShift);
+                if (duration <= 0) {
+                    if (nextMeal && now < nextMeal.start) {
+                        now = nextMeal.start;
+                        continue;
+                    }
+                    break;
+                }
+                addStudyCard(now, duration, studyBlock, parts);
+                now += duration;
+                studySinceBreak += duration;
+                studyBlock++;
             }
 
-            html += `
-                <div class="flex items-center p-4 rounded-lg border-l-4 border-indigo-500 bg-indigo-950/30 mt-4">
-                    <div class="w-24 text-sm font-medium text-indigo-400">${formatTime(currentMins)}</div>
-                    <div class="flex-grow font-black text-indigo-400 pl-4 uppercase tracking-wider">🛌 Wrap Up & Sleep</div>
-                </div>`;
+            parts.push(`<div class="flex items-center p-4 rounded-lg border-l-4 border-indigo-500 bg-indigo-950/30 mt-4"><div class="w-24 text-sm font-medium text-indigo-400">${formatTime(shiftEnd)}</div><div class="flex-grow font-black text-indigo-400 pl-4 uppercase tracking-wider">🛌 14-Hour Shift Complete</div></div>`);
 
-            container.innerHTML = html;
+            let notice = '';
+            if (warnings.length) notice += `<div class="p-3 rounded border border-amber-700 bg-amber-950/30 text-amber-200 text-sm mb-3">${warnings.map(escapeAttribute).join('<br>')}</div>`;
+            if (!acceptedMeals.length) notice += `<div class="p-3 rounded border border-slate-700 bg-slate-800 text-slate-300 text-sm mb-3">No enabled meal time falls inside this 14-hour shift. The full shift remains available for study and short breaks.</div>`;
+            document.getElementById('routine-container').innerHTML = notice + parts.join('');
         }
 
         function saveRoutineType(blockId) {
             localStorage.setItem('neet_routine_type_' + blockId, document.getElementById('routine-type-' + blockId).value);
-            generateRoutine(); // UI तुरंत अपडेट करने के लिए
+            generateRoutine();
         }
 
         function saveRoutine(blockId) {
             localStorage.setItem('neet_routine_block_' + blockId, document.getElementById('routine-block-' + blockId).value);
         }
 
-        window.onload = () => { generateSchedule(); };
-    </script>
-    
-    <!-- PWA Service Worker -->
-    <script>
+        window.onload = () => {
+            generateSchedule();
+            loadStartTime();
+            loadMealSettings();
+        };
+
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('sw.js').then(() => console.log('SW Registered'));
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js', { updateViaCache: 'none' })
+                    .then(registration => registration.update())
+                    .catch(error => console.error('Service worker registration failed:', error));
+            });
         }
     </script>
 </body>
 </html>
+
+            
+    
