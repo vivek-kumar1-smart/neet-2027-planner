@@ -1,5 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
+        <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0f172a">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -15,6 +17,12 @@
         body { background-color: #0f172a; color: #f8fafc; font-family: system-ui, -apple-system, sans-serif; }
     </style>
 </head>
+        <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js')
+              .then(() => console.log('Service Worker Registered'));
+        }
+        </script>
 <body class="antialiased min-h-screen">
 
     <!-- Top Sticky Header -->
