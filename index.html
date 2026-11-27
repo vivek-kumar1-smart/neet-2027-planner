@@ -5,14 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NEET 2027 Command Center</title>
     
-    <!-- PWA Setup (Correctly inside head) -->
+    <!-- PWA Setup -->
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0f172a">
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* Custom Scrollbar for Dark Theme */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: #0f172a; }
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
@@ -22,14 +21,12 @@
 </head>
 <body class="antialiased min-h-screen">
 
-    <!-- Top Sticky Header -->
     <div class="sticky top-0 z-50 bg-slate-900 border-b border-slate-700 shadow-md">
         <div class="p-4 flex flex-col md:flex-row justify-between md:items-center gap-4">
             <div>
                 <h1 class="text-xl md:text-2xl font-bold tracking-tight">🎯 NEET 2027 COMMAND CENTER</h1>
                 <p class="text-sm text-slate-400 mt-1">Operation: 140+ Physics | Time: 14-Hour Shift</p>
             </div>
-            <!-- Tabs -->
             <div class="flex space-x-2">
                 <button id="tab-schedule" onclick="switchTab('schedule')" class="px-4 py-2 rounded font-medium bg-blue-600 text-white transition-colors">Master Schedule</button>
                 <button id="tab-routine" onclick="switchTab('routine')" class="px-4 py-2 rounded font-medium bg-slate-800 text-slate-300 hover:bg-slate-700 transition-colors">Daily Routine</button>
@@ -37,13 +34,12 @@
         </div>
     </div>
 
-    <!-- Main Content Area -->
     <main class="w-full max-w-5xl mx-auto p-4 md:p-6 pb-20">
         
         <!-- TAB 1: MASTER SCHEDULE -->
         <div id="view-schedule" class="block">
             <div id="schedule-container" class="space-y-6 relative z-10">
-                <!-- Javascript will inject months and days here -->
+                <!-- Injected via JS -->
             </div>
         </div>
 
@@ -67,13 +63,12 @@
             </div>
 
             <div id="routine-container" class="space-y-3">
-                <!-- Javascript will inject timeline here -->
+                <!-- Injected via JS -->
             </div>
         </div>
     </main>
 
     <script>
-        // --- DATA & SETUP ---
         const chapters = [
             "[PHY] Units & Measurements", "[CHEM] Basic Concepts", "[BIO] Living World", "[PHY] Motion in a Straight Line", "[CHEM] Structure of Atom", "[BIO] Biological Class.",
             "[PHY] Motion in a Plane", "[CHEM] Classification of Elements", "[BIO] Plant Kingdom", "[PHY] Laws of Motion", "[CHEM] Chemical Bonding", "[BIO] Animal Kingdom",
@@ -90,7 +85,6 @@
             "[BIO] Microbes", "[PHY] Semiconductors", "[BIO] Biotech: Principles", "[BIO] Biotech: Apps", "[BIO] Organisms & Pops", "[BIO] Ecosystem", "[BIO] Biodiversity"
         ];
 
-        // --- TAB SWITCHER ---
         function switchTab(tab) {
             const btnSched = document.getElementById('tab-schedule');
             const btnRout = document.getElementById('tab-routine');
@@ -108,9 +102,7 @@
                 viewRout.classList.remove('hidden'); viewRout.classList.add('block');
                 viewSched.classList.remove('block'); viewSched.classList.add('hidden');
                 
-                // Set default time from localstorage if available
-                let savedTime = localStorage.getItem('neet_routine_start');
-                if(!savedTime) savedTime = '03:00:PM';
+                let savedTime = localStorage.getItem('neet_routine_start') || '03:00:PM';
                 let [h, m, a] = savedTime.split(':');
                 document.getElementById('time-hour').value = h;
                 document.getElementById('time-min').value = m;
@@ -119,11 +111,10 @@
             }
         }
 
-        // --- GENERATE MASTER SCHEDULE ---
         function generateSchedule() {
             const container = document.getElementById('schedule-container');
-            let currentDate = new Date(2026, 10, 27); // Nov 27, 2026
-            const endDate = new Date(2027, 4, 1);     // May 1, 2027
+            let currentDate = new Date(2026, 10, 27); 
+            const endDate = new Date(2027, 4, 1);     
             
             let html = '';
             let currentMonth = -1;
@@ -140,8 +131,7 @@
                     html += `
                         <div class="sticky top-[70px] md:top-[80px] bg-slate-900/95 backdrop-blur-sm pt-4 pb-2 z-20 border-b border-slate-700">
                             <h2 class="text-xl font-black text-slate-200 tracking-wider">${monthNames[m]} ${currentDate.getFullYear()}</h2>
-                        </div>
-                    `;
+                        </div>`;
                     currentMonth = m;
                 }
 
@@ -150,21 +140,15 @@
                 let savedVal = localStorage.getItem('neet_sched_' + isoDate) || "";
 
                 if (d === 0) {
-                    // Sunday
                     html += `
                         <div class="flex flex-col md:flex-row p-3 rounded-lg border border-red-900/50 bg-red-950/20">
                             <div class="w-full md:w-32 flex-shrink-0 font-medium text-red-400 mb-2 md:mb-0">${dateStr}</div>
                             <div class="flex-grow font-bold text-red-400 pl-0 md:pl-4">⚠️ SUNDAY: REVISION & MOCK TEST</div>
-                        </div>
-                    `;
+                        </div>`;
                 } else {
-                    // Mon - Sat
                     let defaultChap = chapterIndex < chapters.length ? chapters[chapterIndex] : "Revision / Mock";
                     let displayVal = savedVal !== "" ? savedVal : defaultChap;
-                    
-                    let phase = "3";
-                    if (currentDate < new Date(2027, 2, 1)) phase = "1";
-                    else if (currentDate < new Date(2027, 3, 15)) phase = "2";
+                    let phase = currentDate < new Date(2027, 2, 1) ? "1" : (currentDate < new Date(2027, 3, 15) ? "2" : "3");
 
                     html += `
                         <div class="flex flex-col md:flex-row p-3 rounded-lg border border-slate-700 bg-slate-800/50 hover:bg-slate-800 transition-colors group">
@@ -176,8 +160,7 @@
                                 <input type="text" id="date-${isoDate}" onchange="saveSchedule('${isoDate}')" value="${displayVal}" 
                                        class="w-full bg-transparent border-b border-transparent group-hover:border-slate-600 focus:border-blue-500 focus:outline-none text-slate-200 py-1 font-medium transition-colors">
                             </div>
-                        </div>
-                    `;
+                        </div>`;
                     chapterIndex++;
                 }
                 currentDate.setDate(currentDate.getDate() + 1);
@@ -186,11 +169,9 @@
         }
 
         function saveSchedule(dateIso) {
-            const val = document.getElementById('date-' + dateIso).value;
-            localStorage.setItem('neet_sched_' + dateIso, val);
+            localStorage.setItem('neet_sched_' + dateIso, document.getElementById('date-' + dateIso).value);
         }
 
-        // --- GENERATE DAILY ROUTINE ---
         function formatTime(totalMins) {
             let m = totalMins % (24 * 60);
             let hours = Math.floor(m / 60);
@@ -205,8 +186,6 @@
             const h = document.getElementById('time-hour').value;
             const m = document.getElementById('time-min').value;
             const a = document.getElementById('time-ampm').value;
-            
-            // Save preference
             localStorage.setItem('neet_routine_start', `${h}:${m}:${a}`);
 
             let hour24 = parseInt(h);
@@ -221,60 +200,71 @@
             let currentMins = startMins;
             let blockNum = 1;
 
-            while (elapsed < 840) { // 14 hours
-                if (elapsed === 210) { // 3.5 hrs
-                    html += `
-                        <div class="flex items-center p-3 rounded-lg border-l-4 border-orange-500 bg-orange-950/20">
-                            <div class="w-24 text-sm font-medium text-orange-400">${formatTime(currentMins)}</div>
-                            <div class="flex-grow font-bold text-orange-400 pl-4">🍔 DINNER / BIG BREAK (30m)</div>
-                        </div>`;
-                    currentMins += 30; elapsed += 30;
-                } 
-                else if (elapsed === 420) { // 7 hrs
-                    html += `
-                        <div class="flex items-center p-3 rounded-lg border-l-4 border-yellow-500 bg-yellow-950/20">
-                            <div class="w-24 text-sm font-medium text-yellow-400">${formatTime(currentMins)}</div>
-                            <div class="flex-grow font-bold text-yellow-400 pl-4">🥪 SNACK / REFRESH (30m)</div>
-                        </div>`;
-                    currentMins += 30; elapsed += 30;
-                } 
-                else {
-                    let studyDur = 50;
-                    if (elapsed < 210 && elapsed + studyDur > 210) studyDur = 210 - elapsed;
-                    else if (elapsed < 420 && elapsed + studyDur > 420) studyDur = 420 - elapsed;
-                    else if (elapsed + studyDur > 840) studyDur = 840 - elapsed;
+            while (elapsed < 840) {
+                let blockDur = 50;
+                if (elapsed + blockDur > 840) blockDur = 840 - elapsed;
 
-                    let savedBlock = localStorage.getItem('neet_routine_block_' + blockNum) || "";
+                let savedType = localStorage.getItem('neet_routine_type_' + blockNum) || "Study";
+                let savedBlock = localStorage.getItem('neet_routine_block_' + blockNum) || "";
 
-                    html += `
-                        <div class="flex flex-col md:flex-row p-3 rounded-lg border border-slate-700 bg-slate-800">
-                            <div class="w-full md:w-24 text-sm font-medium text-blue-400 mb-1 md:mb-0 flex items-center">${formatTime(currentMins)}</div>
-                            <div class="flex-grow pl-0 md:pl-4 flex flex-col md:flex-row md:items-center gap-2">
-                                <span class="text-xs font-bold px-2 py-1 rounded bg-blue-900/50 text-blue-300 w-fit">STUDY ${studyDur}m</span>
-                                <input type="text" id="routine-block-${blockNum}" onchange="saveRoutine(${blockNum})" value="${savedBlock}" placeholder="Enter topic / Questions..." 
-                                       class="w-full bg-slate-900 border border-slate-600 rounded p-2 text-sm text-slate-100 focus:border-blue-500 focus:outline-none">
-                            </div>
-                        </div>`;
-                    
-                    currentMins += studyDur; elapsed += studyDur;
-                    blockNum++;
+                // Dynamic UI Setup Based on Dropdown Selection
+                let bgClass = "bg-slate-800 border-slate-700";
+                let textClass = "text-slate-100";
+                let badgeClass = "bg-blue-900/50 text-blue-300";
+                let placeholderText = "Enter topic / Questions...";
 
-                    if (elapsed < 840 && elapsed !== 210 && elapsed !== 420) {
-                        let breakDur = 7;
-                        if (elapsed < 210 && elapsed + breakDur > 210) breakDur = 210 - elapsed;
-                        else if (elapsed < 420 && elapsed + breakDur > 420) breakDur = 420 - elapsed;
-                        else if (elapsed + breakDur > 840) breakDur = 840 - elapsed;
+                if (["Dinner", "Lunch", "Breakfast"].includes(savedType)) {
+                    bgClass = "bg-orange-950/20 border-orange-500 border-l-4";
+                    badgeClass = "bg-orange-900/50 text-orange-300";
+                    placeholderText = "Watch Tarak Mehta / Eat...";
+                } else if (savedType === "Snacks") {
+                    bgClass = "bg-yellow-950/20 border-yellow-500 border-l-4";
+                    badgeClass = "bg-yellow-900/50 text-yellow-300";
+                    placeholderText = "Light snack time...";
+                } else if (savedType === "Break") {
+                    bgClass = "bg-emerald-950/20 border-emerald-500 border-l-4";
+                    badgeClass = "bg-emerald-900/50 text-emerald-300";
+                    placeholderText = "Relax / Free Fire break...";
+                }
 
-                        if (breakDur > 0) {
-                            html += `
-                                <div class="flex items-center p-2 rounded border border-slate-700/50 bg-slate-800/30">
-                                    <div class="w-24 text-xs text-slate-500">${formatTime(currentMins)}</div>
-                                    <div class="flex-grow text-xs font-medium text-slate-400 pl-4">☕ Short Break (${breakDur}m)</div>
-                                </div>`;
-                            currentMins += breakDur; elapsed += breakDur;
-                        }
+                html += `
+                    <div class="flex flex-col md:flex-row p-3 rounded-lg border ${bgClass} transition-colors">
+                        <div class="w-full md:w-24 text-sm font-medium text-slate-400 mb-2 md:mb-0 flex items-center">${formatTime(currentMins)}</div>
+                        <div class="flex-grow pl-0 md:pl-4 flex flex-col md:flex-row md:items-center gap-2">
+                            
+                            <!-- DYNAMIC TYPE SELECTOR -->
+                            <select id="routine-type-${blockNum}" onchange="saveRoutineType(${blockNum})" class="border border-slate-600 rounded p-1.5 text-xs font-bold focus:outline-none focus:border-blue-500 ${badgeClass} cursor-pointer">
+                                <option value="Study" ${savedType === 'Study' ? 'selected' : ''}>📘 STUDY</option>
+                                <option value="Breakfast" ${savedType === 'Breakfast' ? 'selected' : ''}>🍳 BREAKFAST</option>
+                                <option value="Lunch" ${savedType === 'Lunch' ? 'selected' : ''}>🍱 LUNCH</option>
+                                <option value="Snacks" ${savedType === 'Snacks' ? 'selected' : ''}>🥪 SNACKS</option>
+                                <option value="Dinner" ${savedType === 'Dinner' ? 'selected' : ''}>🍔 DINNER</option>
+                                <option value="Break" ${savedType === 'Break' ? 'selected' : ''}>🧘 FREE BREAK</option>
+                            </select>
+
+                            <span class="text-xs font-bold px-2 py-1 rounded bg-slate-800 text-slate-400 hidden md:inline-block">${blockDur}m</span>
+
+                            <input type="text" id="routine-block-${blockNum}" onchange="saveRoutine(${blockNum})" value="${savedBlock}" placeholder="${placeholderText}" 
+                                   class="w-full bg-slate-900/50 border border-slate-600 rounded p-2 text-sm ${textClass} focus:border-blue-500 focus:outline-none">
+                        </div>
+                    </div>`;
+                
+                currentMins += blockDur; elapsed += blockDur;
+
+                if (elapsed < 840) {
+                    let breakDur = 7;
+                    if (elapsed + breakDur > 840) breakDur = 840 - elapsed;
+
+                    if (breakDur > 0) {
+                        html += `
+                            <div class="flex items-center p-2 rounded border border-slate-700/50 bg-slate-800/30">
+                                <div class="w-24 text-xs text-slate-500">${formatTime(currentMins)}</div>
+                                <div class="flex-grow text-xs font-medium text-slate-400 pl-4">☕ Short Break (${breakDur}m)</div>
+                            </div>`;
+                        currentMins += breakDur; elapsed += breakDur;
                     }
                 }
+                blockNum++;
             }
 
             html += `
@@ -286,23 +276,22 @@
             container.innerHTML = html;
         }
 
-        function saveRoutine(blockId) {
-            const val = document.getElementById('routine-block-' + blockId).value;
-            localStorage.setItem('neet_routine_block_' + blockId, val);
+        function saveRoutineType(blockId) {
+            localStorage.setItem('neet_routine_type_' + blockId, document.getElementById('routine-type-' + blockId).value);
+            generateRoutine(); // UI तुरंत अपडेट करने के लिए
         }
 
-        // Initialize on Load
-        window.onload = () => {
-            generateSchedule();
-            // Default to Schedule Tab on load
-        };
+        function saveRoutine(blockId) {
+            localStorage.setItem('neet_routine_block_' + blockId, document.getElementById('routine-block-' + blockId).value);
+        }
+
+        window.onload = () => { generateSchedule(); };
     </script>
     
-    <!-- PWA Service Worker Registration -->
+    <!-- PWA Service Worker -->
     <script>
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('sw.js')
-              .then(() => console.log('Service Worker Registered'));
+            navigator.serviceWorker.register('sw.js').then(() => console.log('SW Registered'));
         }
     </script>
 </body>
