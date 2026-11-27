@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,7 +6,6 @@
 <meta name="theme-color" content="#0f172a">
 <link rel="manifest" href="manifest.json">
 <title>Universal Command Center</title>
-
 <style>
 :root{
  --bg:#0f172a;--panel:#1e293b;--panel2:#111c30;
@@ -132,9 +130,7 @@ hr{border:0;border-top:1px solid var(--border);margin:14px 0}
 }
 </style>
 </head>
-
 <body>
-
 <header>
  <div class="header-inner">
   <div>
@@ -150,7 +146,6 @@ hr{border:0;border-top:1px solid var(--border);margin:14px 0}
    <button class="btn" onclick="openProfileDialog()">+ Exam</button>
   </div>
  </div>
-
  <nav class="nav no-print">
   <button class="tab active" data-view="dashboard">Dashboard</button>
   <button class="tab" data-view="syllabus">Subjects & Chapters</button>
@@ -159,9 +154,7 @@ hr{border:0;border-top:1px solid var(--border);margin:14px 0}
   <button class="tab" data-view="backup">Backup & Export</button>
  </nav>
 </header>
-
 <main class="main">
-
 <!-- DASHBOARD -->
 <section id="view-dashboard">
  <div class="card">
@@ -174,13 +167,11 @@ hr{border:0;border-top:1px solid var(--border);margin:14px 0}
    <button class="btn2 no-print" onclick="editProfile()">Edit Profile</button>
   </div>
  </div>
-
  <div class="grid grid3">
   <div class="stat"><span>Total Subjects</span><strong id="dashSubjects">0</strong></div>
   <div class="stat"><span>Total Chapters / Topics</span><strong id="dashChapters">0</strong></div>
   <div class="stat"><span>Saved Study Days</span><strong id="dashDays">0</strong></div>
  </div>
-
  <div class="card">
   <h3>Preparation Overview</h3>
   <div class="grid grid2">
@@ -191,7 +182,6 @@ hr{border:0;border-top:1px solid var(--border);margin:14px 0}
    Each exam profile has separate syllabus, calendar, study records and reports.
   </p>
  </div>
-
  <div class="card">
   <h3>Quick Actions</h3>
   <div class="row no-print">
@@ -201,8 +191,6 @@ hr{border:0;border-top:1px solid var(--border);margin:14px 0}
   </div>
  </div>
 </section>
-
-
 <!-- SUBJECTS AND CHAPTERS -->
 <section id="view-syllabus" class="hidden">
  <div class="card">
@@ -218,11 +206,8 @@ hr{border:0;border-top:1px solid var(--border);margin:14px 0}
  </div>
  <div id="subjectsContainer"></div>
 </section>
-
-
 <!-- CALENDAR AND ROUTINE -->
 <section id="view-calendar" class="hidden">
-
  <div class="card">
   <div class="row between">
    <h2>Study Calendar</h2>
@@ -232,7 +217,6 @@ hr{border:0;border-top:1px solid var(--border);margin:14px 0}
     <button class="btn2" onclick="changeMonth(1)">→</button>
    </div>
   </div>
-
   <div class="calendar" style="margin-top:12px">
    <div class="small muted">Sun</div>
    <div class="small muted">Mon</div>
@@ -242,10 +226,8 @@ hr{border:0;border-top:1px solid var(--border);margin:14px 0}
    <div class="small muted">Fri</div>
    <div class="small muted">Sat</div>
   </div>
-
   <div id="calendarGrid" class="calendar" style="margin-top:5px"></div>
  </div>
-
  <div class="card" id="dayEditor">
   <h3>Select a date</h3>
   <p class="muted small">Select a calendar date to configure its study shift.</p>
@@ -253,8 +235,6 @@ hr{border:0;border-top:1px solid var(--border);margin:14px 0}
 
  <div id="routineContainer"></div>
 </section>
-
-
 <!-- HISTORY -->
 <section id="view-history" class="hidden">
  <div class="card">
@@ -270,8 +250,6 @@ hr{border:0;border-top:1px solid var(--border);margin:14px 0}
   <div id="historyContainer"></div>
  </div>
 </section>
-
-
 <!-- BACKUP AND EXPORT -->
 <section id="view-backup" class="hidden">
  <div class="card">
@@ -279,7 +257,6 @@ hr{border:0;border-top:1px solid var(--border);margin:14px 0}
   <p class="muted small">
    JSON backup includes all exam profiles, syllabus, shifts and history.
   </p>
-
   <div class="row no-print" style="margin-top:14px">
    <button class="btn" onclick="downloadJSON()">Download JSON Backup</button>
    <button class="btn2" onclick="chooseRestoreFile()">Restore JSON</button>
@@ -287,7 +264,6 @@ hr{border:0;border-top:1px solid var(--border);margin:14px 0}
    <button class="btn2" onclick="printReport()">Export PDF</button>
    <input type="file" id="restoreFile" accept=".json,application/json" class="hidden">
   </div>
-
   <hr>
   <div class="stat">
    <strong>Important Backup Note</strong>
@@ -300,37 +276,28 @@ hr{border:0;border-top:1px solid var(--border);margin:14px 0}
   <p id="backupMessage" class="small" role="status"></p>
  </div>
 </section>
-
 </main>
-
-
 <!-- EXAM PROFILE DIALOG -->
 <dialog id="profileDialog">
  <form id="profileForm">
   <h2 id="profileDialogHeading">Create Exam Profile</h2>
-
   <label>Exam / Course Name
    <input id="profileName" class="field" required
     placeholder="NEET, JEE, MBBS, UPSC...">
   </label>
-
   <label style="margin-top:12px">Target Year / Batch
    <input id="profileYear" class="field"
     placeholder="2027, 2028, 2029 batch">
   </label>
-
   <label style="margin-top:12px">Exam Date (optional)
    <input id="profileExamDate" type="date" class="field">
   </label>
-
   <div class="row" style="justify-content:flex-end;margin-top:15px">
    <button type="button" class="btn2" onclick="closeProfileDialog()">Cancel</button>
    <button type="submit" class="btn">Save Profile</button>
   </div>
  </form>
 </dialog>
-
-
 <!-- SUBJECT DIALOG -->
 <dialog id="subjectDialog">
  <form id="subjectForm">
@@ -346,8 +313,6 @@ hr{border:0;border-top:1px solid var(--border);margin:14px 0}
   </div>
  </form>
 </dialog>
-
-
 <!-- CHAPTER DIALOG -->
 <dialog id="chapterDialog">
  <form id="chapterForm">
@@ -363,34 +328,21 @@ hr{border:0;border-top:1px solid var(--border);margin:14px 0}
   </div>
  </form>
 </dialog>
-
-
-<!-- PART 2 AND PART 3 WILL CONTINUE HERE -->
 <script>
-    // ===============================
-// PART 2/3 — APP LOGIC
-// Paste directly after Part 1
-// ===============================
-
 const DB_KEY = "universal_command_center_v1";
-
 let db = {
   profiles: [],
   activeProfileId: null
 };
-
 let selectedDate = new Date().toISOString().slice(0,10);
 let calendarDate = new Date();
 let editingProfileId = null;
 let activeSubjectId = null;
 let editingChapterId = null;
-
 const $ = id => document.getElementById(id);
-
 function uid(){
   return Date.now().toString(36) + Math.random().toString(36).slice(2,9);
 }
-
 function loadDB(){
   try{
     const saved = localStorage.getItem(DB_KEY);
@@ -403,7 +355,6 @@ function loadDB(){
   }catch(e){
     console.error("Database load error:",e);
   }
-
   if(!db.profiles.length){
     const profile = {
       id:uid(),
@@ -417,15 +368,12 @@ function loadDB(){
     db.profiles.push(profile);
     db.activeProfileId = profile.id;
   }
-
   if(!db.activeProfileId ||
      !db.profiles.some(p=>p.id===db.activeProfileId)){
     db.activeProfileId = db.profiles[0].id;
   }
-
   saveDB();
 }
-
 function saveDB(){
   try{
     localStorage.setItem(DB_KEY,JSON.stringify(db));
@@ -434,17 +382,14 @@ function saveDB(){
     console.error(e);
   }
 }
-
 function activeProfile(){
   return db.profiles.find(p=>p.id===db.activeProfileId) || null;
 }
-
 function activeDay(){
   const p = activeProfile();
   if(!p) return null;
   return p.days[selectedDate] || null;
 }
-
 function safeText(value){
   return String(value ?? "").replace(/[&<>"']/g,c=>({
     "&":"&amp;",
@@ -454,14 +399,12 @@ function safeText(value){
     "'":"&#039;"
   })[c]);
 }
-
 function formatHours(minutes){
   minutes = Math.max(0,Math.round(minutes || 0));
   const h = Math.floor(minutes/60);
   const m = minutes%60;
   return h+"h "+m+"m";
 }
-
 function dateLabel(dateString){
   if(!dateString) return "";
   const d = new Date(dateString+"T12:00:00");
@@ -469,52 +412,41 @@ function dateLabel(dateString){
     day:"numeric",month:"short",year:"numeric"
   });
 }
-
 function dateTime(date,time){
   return new Date(date+"T"+time+":00");
 }
-
 function minutesBetween(start,end){
   return Math.max(0,Math.round((end-start)/60000));
 }
-
 function showView(view){
   document.querySelectorAll("main section").forEach(s=>{
     s.classList.add("hidden");
   });
-
   const target = $("view-"+view);
   if(target) target.classList.remove("hidden");
-
   document.querySelectorAll(".tab").forEach(b=>{
     b.classList.toggle("active",b.dataset.view===view);
   });
-
   if(view==="dashboard") renderDashboard();
   if(view==="syllabus") renderSubjects();
   if(view==="calendar") renderCalendar();
   if(view==="history") renderHistory();
 }
-
 document.querySelectorAll(".tab").forEach(button=>{
   button.addEventListener("click",()=>{
     showView(button.dataset.view);
   });
 });
-
 function renderProfileSelect(){
   const select = $("profileSelect");
   select.innerHTML = "";
-
   db.profiles.forEach(p=>{
     const option = document.createElement("option");
     option.value = p.id;
     option.textContent = p.name+" "+(p.year || "");
     select.appendChild(option);
   });
-
   select.value = db.activeProfileId;
-
   const p = activeProfile();
   if(p){
     const title = `${p.name} ${p.year || ""}`.trim();
@@ -525,13 +457,11 @@ function renderProfileSelect(){
       "Your personalized study workspace";
   }
 }
-
 $("profileSelect").addEventListener("change",e=>{
   db.activeProfileId = e.target.value;
   saveDB();
   renderAll();
 });
-
 function openProfileDialog(){
   editingProfileId = null;
   $("profileDialogHeading").textContent = "Create Exam Profile";
@@ -540,11 +470,9 @@ function openProfileDialog(){
   $("profileExamDate").value = "";
   $("profileDialog").showModal();
 }
-
 function editProfile(){
   const p = activeProfile();
   if(!p) return;
-
   editingProfileId = p.id;
   $("profileDialogHeading").textContent = "Edit Exam Profile";
   $("profileName").value = p.name;
@@ -552,20 +480,15 @@ function editProfile(){
   $("profileExamDate").value = p.examDate || "";
   $("profileDialog").showModal();
 }
-
 function closeProfileDialog(){
   $("profileDialog").close();
 }
-
 $("profileForm").addEventListener("submit",e=>{
   e.preventDefault();
-
   const name = $("profileName").value.trim();
   const year = $("profileYear").value.trim();
   const examDate = $("profileExamDate").value;
-
   if(!name) return;
-
   if(editingProfileId){
     const p = db.profiles.find(x=>x.id===editingProfileId);
     if(p){
@@ -591,12 +514,10 @@ $("profileForm").addEventListener("submit",e=>{
   $("profileDialog").close();
   renderAll();
 });
-
 function addSubject(){
   $("subjectInput").value = "";
   $("subjectDialog").showModal();
 }
-
 $("subjectForm").addEventListener("submit",e=>{
   e.preventDefault();
 
