@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b1020">
+<meta name="description" content="Custom study planner, routine tracker and exam command center.">
+<title>Study Command Center</title>
+<link rel="manifest" href="./manifest.json">
+<style>
+:root{--bg:#0b1020;--panel:#121a2d;--panel2:#18233a;--line:#26344f;--text:#eef3ff;--muted:#9aabc7;--accent:#7c9cff;--green:#55d6a3;--yellow:#f5c96a;--red:#ff7f88;--radius:16px}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(160deg,#0b1020,#101a30 55%,#0b1020);color:var(--text);font:15px/1.45 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+button,input,select,textarea{font:inherit}button{cursor:pointer;border:1px solid var(--line);background:var(--panel2);color:var(--text);border-radius:11px;padding:10px 13px}button.primary{background:var(--accent);border-color:var(--accent);color:#081126;font-weight:750}button.danger{border-color:#713c4b;color:#ffabb0}button.small{padding:7px 10px;font-size:13px}button:disabled{opacity:.45;cursor:not-allowed}
+input,select,textarea{width:100%;background:#0d1527;border:1px solid var(--line);border-radius:10px;color:var(--text);padding:10px;min-width:0}input[type=checkbox]{width:auto;accent-color:var(--accent)}label{display:block;color:var(--muted);font-size:13px;margin:8px 0 5px}.app{max-width:1200px;margin:auto;padding:14px 14px 90px}.top{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;padding:12px 2px 18px}.brand h1{font-size:21px;margin:0}.brand p{margin:2px 0;color:var(--muted);font-size:12px}.profilebar{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.profilebar select{width:auto;min-width:145px}.tabs{display:flex;gap:7px;overflow:auto;padding:5px 0 14px;position:sticky;top:0;z-index:5;background:#0b1020ee;backdrop-filter:blur(12px)}.tabs button{white-space:nowrap}.tabs button.active{background:var(--accent);color:#081126;border-color:var(--accent);font-weight:750}.view{display:none}.view.active{display:block}.grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:12px}.card{background:linear-gradient(145deg,var(--panel),#10182a);border:1px solid var(--line);border-radius:var(--radius);padding:15px;min-width:0}.span12{grid-column:span 12}.span8{grid-column:span 8}.span6{grid-column:span 6}.span4{grid-column:span 4}.stat{font-size:27px;font-weight:800;margin-top:5px}.muted{color:var(--muted)}.row{display:flex;gap:9px;align-items:center;flex-wrap:wrap}.between{justify-content:space-between}.stack{display:grid;gap:9px}.sectionhead{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:4px 0 12px}.sectionhead h2{font-size:18px;margin:0}.sectionhead p{color:var(--muted);font-size:12px;margin:3px 0}.pill{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:3px 8px;font-size:12px;color:var(--muted)}.progress{height:8px;border-radius:99px;background:#26344f;overflow:hidden}.progress i{display:block;height:100%;background:var(--green);width:0}.item{padding:11px;border:1px solid var(--line);border-radius:12px;background:#10182a}.item h3{font-size:14px;margin:0 0 4px}.item p{font-size:12px;color:var(--muted);margin:0}.formgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.formgrid .full{grid-column:1/-1}.checks{display:flex;gap:12px;flex-wrap:wrap}.checks label{display:flex;gap:6px;align-items:center;margin:4px 0}.timeline{display:grid;gap:7px}.timeitem{display:grid;grid-template-columns:90px 1fr auto;gap:10px;align-items:center;padding:10px;border-radius:11px;background:#10182a;border:1px solid var(--line)}.timeitem.meal{border-left:4px solid var(--yellow)}.timeitem.study{border-left:4px solid var(--green)}.timeitem.break{border-left:4px solid var(--accent)}.timeitem.done{opacity:.55}.empty{text-align:center;padding:28px;color:var(--muted);border:1px dashed var(--line);border-radius:12px}.tablewrap{overflow:auto}table{width:100%;border-collapse:collapse;min-width:520px}th,td{text-align:left;padding:9px;border-bottom:1px solid var(--line);font-size:13px}th{color:var(--muted);font-weight:600}.actions{display:flex;gap:6px;flex-wrap:wrap}.notice{padding:10px 12px;border-radius:11px;background:#1c2941;color:#c9d8f5;font-size:13px}.hidden{display:none!important}.footer{color:var(--muted);font-size:11px;text-align:center;padding:25px 0}
+@media(max-width:760px){.span8,.span6,.span4{grid-column:span 12}.app{padding:10px 10px 80px}.top{align-items:flex-start}.brand h1{font-size:18px}.timeitem{grid-template-columns:70px 1fr}.timeitem .actions{grid-column:1/-1}.formgrid{grid-template-columns:1fr}.formgrid .full{grid-column:auto}.stat{font-size:24px}}
+
+/* Dashboard inner scrolling: keep cards compact while exposing every item */
+#dashTimeline{max-height:420px;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;padding:2px 5px 2px 0;scrollbar-width:thin;scrollbar-color:#52658c #10182a}
+#dashTodo{max-height:420px;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;padding:2px 5px 2px 0;scrollbar-width:thin;scrollbar-color:#52658c #10182a}
+#dashTimeline::-webkit-scrollbar,#dashTodo::-webkit-scrollbar{width:7px}
+#dashTimeline::-webkit-scrollbar-thumb,#dashTodo::-webkit-scrollbar-thumb{background:#52658c;border-radius:8px}
+.dashboard-heading-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+
+</style>
+</head>
+<body>
+<div class="app">
+<header class="top">
+ <div class="brand"><h1 id="appTitle">Study Command Center</h1><p>Routine • Syllabus • Progress • Exam countdown</p></div>
+ <div class="profilebar"><select id="profileSelect" aria-label="Select profile"></select><button id="addProfileBtn" class="small">+ Profile</button></div>
+</header>
+<nav class="tabs" aria-label="Main navigation">
+ <button class="active" data-tab="dashboard">Dashboard</button><button data-tab="todo">To-do</button><button data-tab="routine">Daily Routine</button><button data-tab="syllabus">Syllabus</button><button data-tab="exams">Exams</button><button data-tab="history">History</button><button data-tab="settings">Settings & Backup</button>
+</nav>
+
+<section id="dashboard" class="view active">
+ <div class="sectionhead"><div><h2 id="dashGreeting">Command Center</h2><p id="dashDate"></p></div><button class="primary" id="goRoutine">Open today's routine</button></div>
+ <div class="grid">
+  <div class="card span4"><div class="muted">Study time today</div><div class="stat" id="dashStudy">0h 0m</div><p class="muted" id="dashStudySub">Logged study duration</p></div>
+  <div class="card span4"><div class="muted">Break time today</div><div class="stat" id="dashBreak">0h 0m</div><p class="muted" id="dashBreakSub">Meals shown separately</p></div>
+  <div class="card span4"><div class="muted">Syllabus progress</div><div class="stat" id="dashProgress">0%</div><div class="progress"><i id="dashProgressBar"></i></div></div>
+  <div class="card span6"><div class="sectionhead"><h2>Active exam</h2><span class="pill" id="examStatus">No exam</span></div><h3 id="activeExamName">Add an exam</h3><div class="stat" id="examCountdown">—</div><p class="muted" id="examDateText">Target date countdown</p></div>
+  <div class="card span6"><div class="sectionhead"><h2>Today's schedule</h2><div class="dashboard-heading-actions"><span class="pill" id="todayCount">0 blocks</span><button class="small" data-goto="routine">Manage schedule</button></div></div><div id="dashTimeline" class="timeline"></div></div>
+  <div class="card span12"><div class="sectionhead"><h2>Today's To-do</h2><div class="dashboard-heading-actions"><button class="small" data-goto="todo">Manage tasks</button></div></div><div id="dashTodo" class="stack"></div></div>
+  <div class="card span12"><div class="sectionhead"><h2>Subject progress</h2><button class="small" data-goto="syllabus">Manage syllabus</button></div><div id="subjectProgress" class="stack"></div></div>
+ </div>
+</section>
+
+
+<section id="todo" class="view">
+ <div class="sectionhead"><div><h2>Date-wise To-do</h2><p>Tasks profile-wise save hote hain aur Study Day reset ke saath date follow karte hain.</p></div><button class="primary" id="addTodoBtn">+ Add task</button></div>
+ <div class="card span12"><div class="formgrid"><div><label for="todoDate">Study date</label><input type="date" id="todoDate"></div><div><label>Completion</label><div class="stat" id="todoPercent">0%</div></div></div><div class="progress" style="margin:10px 0"><i id="todoProgressBar"></i></div><div id="todoList" class="stack"></div></div>
+</section>
+
+<section id="routine" class="view">
+ <div class="sectionhead"><div><h2>Daily Routine Builder</h2><p>Choose a shift, set meals and breaks, then generate the day.</p></div><button class="primary" id="generateRoutine">Generate routine</button></div>
+ <div class="grid">
+  <div class="card span4">
+   <h2>Study shift</h2>
+   <div class="formgrid">
+    <div><label for="shiftStart">Start time</label><input type="time" id="shiftStart" value="06:00"></div>
+    <div><label for="shiftEnd">End time</label><input type="time" id="shiftEnd" value="22:00"></div>
+    <div><label for="studyBlock">Study block (minutes)</label><input type="number" id="studyBlock" min="15" max="240" value="90"></div>
+    <div><label for="shortBreak">Short break (minutes)</label><input type="number" id="shortBreak" min="0" max="90" value="10"></div>
+   </div>
+   <p class="muted">Routine is generated inside the selected time window. Overnight shifts are supported.</p>
+   <div class="row"><button id="saveRoutineSettings">Save settings</button><button id="resetRoutine">Reset routine</button></div>
+  </div>
+  <div class="card span8">
+   <div class="sectionhead"><div><h2>Meals & custom breaks</h2><p>Include only the items you want in this routine.</p></div><button class="small" id="addBreakBtn">+ Custom break</button></div>
+   <div id="mealSettings" class="stack"></div>
+  </div>
+  <div class="card span12">
+   <div class="sectionhead"><div><h2>Today's timeline</h2><p>Tick a study block when completed. Edit or delete any block.</p></div><span class="pill" id="routineDate"></span></div>
+   <div class="grid">
+    <div class="card span4"><div class="muted">Study total</div><div class="stat" id="routineStudyTotal">0h 0m</div></div>
+    <div class="card span4"><div class="muted">Break total (excluding meals)</div><div class="stat" id="routineBreakTotal">0h 0m</div></div>
+    <div class="card span4"><div class="muted">Meal total</div><div class="stat" id="routineMealTotal">0h 0m</div></div>
+   </div>
+   <div id="routineTimeline" class="timeline" style="margin-top:12px"></div>
+   <div class="row" style="margin-top:12px"><button id="addStudyBlock">+ Add study block</button><button id="addManualBreak">+ Add break</button><button id="logDay" class="primary">Save today's totals</button></div>
+  </div>
+ </div>
+</section>
+
+<section id="syllabus" class="view">
+ <div class="sectionhead"><div><h2>Syllabus Manager</h2><p>Add subjects and chapters; mark each chapter's progress.</p></div><div class="actions"><button id="addSubjectBtn" class="primary">+ Subject</button><button id="addChapterBtn">+ Chapter</button></div></div>
+ <div id="syllabusList" class="stack"></div>
+</section>
+
+<section id="exams" class="view">
+ <div class="sectionhead"><div><h2>Exam Manager</h2><p>Multiple exams can be stored separately inside this profile.</p></div><button id="addExamBtn" class="primary">+ Exam</button></div>
+ <div id="examList" class="stack"></div>
+</section>
+
+<section id="history" class="view">
+ <div class="sectionhead"><div><h2>Study History</h2><p>Daily totals saved from your routine.</p></div><div class="actions"><button id="exportCSV">Export CSV</button><button id="printReport">Print / Save PDF</button></div></div>
+ <div class="grid">
+  <div class="card span4"><div class="muted">Total study time</div><div class="stat" id="historyStudy">0h 0m</div></div>
+  <div class="card span4"><div class="muted">Total break time</div><div class="stat" id="historyBreak">0h 0m</div></div>
+  <div class="card span4"><div class="muted">Days logged</div><div class="stat" id="historyDays">0</div></div>
+  <div class="card span12"><div class="sectionhead"><h2>Day details</h2><div style="max-width:220px"><input type="date" id="historyDetailDate" aria-label="Choose history date"></div></div><div id="historyDetail" class="stack"></div></div>
+  <div class="card span12"><div class="tablewrap"><table><thead><tr><th>Date</th><th>Study</th><th>Break</th><th>Meals</th><th>Completed blocks</th><th></th></tr></thead><tbody id="historyTable"></tbody></table></div></div>
+ </div>
+</section>
+
+<section id="settings" class="view">
+ <div class="sectionhead"><div><h2>Settings & Backup</h2><p>Data is stored in this browser on this device.</p></div></div>
+ <div class="grid">
+  <div class="card span6"><h2>App settings</h2><label for="customTitle">Command Center title</label><input id="customTitle" placeholder="Study Command Center"><label for="todayTarget">Daily study target (hours)</label><input id="todayTarget" type="number" min="1" max="24" value="8"><label for="studyDayReset">Study Day reset time (India time)</label><input id="studyDayReset" type="time" value="00:00"><label for="studyDayEffectiveDate">Apply this date + time from</label><input id="studyDayEffectiveDate" type="date"><p class="muted">Selected date aur reset time ek saath save honge. Is date se pehle purana reset rule chalega. India mein 12:00 AM par Study Day nahi badlega; selected reset time par hi badlega.</p><button id="saveAppSettings" class="primary" style="margin-top:10px">Save settings</button></div>
+  <div class="card span6"><h2>Backup & restore</h2><p class="muted">Download a JSON backup regularly. Restore replaces the app data after confirmation.</p><div class="stack"><button id="downloadBackup" class="primary">Download JSON backup</button><label for="restoreFile">Restore from JSON file</label><input id="restoreFile" type="file" accept="application/json,.json"><button id="restoreBackup" class="danger">Restore selected backup</button></div></div>
+  <div class="card span12"><h2>Profiles</h2><p class="muted">Each profile keeps its own exams, syllabus, routine and history.</p><div id="profileList" class="stack"></div></div>
+  <div class="card span12 notice">Important: browser/site-data deletion can erase local data. Keep JSON backups outside the browser. Automatic Google Drive backup requires a separate Google sign-in/API setup and is not enabled in this offline file.</div>
+ </div>
+</section>
+<div class="footer">Study Command Center • Works offline after the PWA service worker is installed • Keep regular backups</div>
+</div>
+
+<dialog id="editDialog" style="background:#121a2d;color:#eef3ff;border:1px solid #26344f;border-radius:16px;max-width:480px;width:calc(100% - 28px)">
+ <form method="dialog" id="editForm"><div class="sectionhead"><h2 id="dialogTitle">Add item</h2><button value="cancel" class="small">Close</button></div><div id="dialogFields" class="stack"></div><div class="row" style="margin-top:14px"><button class="primary" id="dialogSave" value="default">Save</button></div></form>
+</dialog>
+<script>
+"use strict";
+const $=id=>document.getElementById(id);
+const STORE_KEY="study_command_center_v3";
+function indiaParts(now=new Date()){const parts=new Intl.DateTimeFormat("en-CA",{timeZone:"Asia/Kolkata",year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit",hourCycle:"h23"}).formatToParts(now);return Object.fromEntries(parts.filter(x=>x.type!=="literal").map(x=>[x.type,x.value]))}
+const today=()=>{const x=indiaParts();return `${x.year}-${x.month}-${x.day}`};
+function shiftDate(date,days){const [y,m,d]=date.split("-").map(Number),x=new Date(Date.UTC(y,m-1,d+days));return `${x.getUTCFullYear()}-${String(x.getUTCMonth()+1).padStart(2,"0")}-${String(x.getUTCDate()).padStart(2,"0")}`}
+function resetRuleFor(p,date){const rules=Array.isArray(p?.settings?.studyDayRules)?p.settings.studyDayRules:[];const eligible=rules.filter(r=>r.effectiveFrom<=date).sort((a,b)=>a.effectiveFrom.localeCompare(b.effectiveFrom));return eligible.length?eligible[eligible.length-1].resetTime:(p?.settings?.studyDayReset||"00:00")}
+function studyDayKey(p=profile(),now=new Date()){const x=indiaParts(now),local=`${x.year}-${x.month}-${x.day}`,clock=`${x.hour}:${x.minute}`,reset=resetRuleFor(p,local);return mins(clock)<mins(reset)?shiftDate(local,-1):local}
+function taskList(p=profile(),date=studyDayKey(p)){if(!Array.isArray(p.todos))p.todos=[];return p.todos.filter(t=>t.date===date)}
+function dayTotals(blocks=[]){return {study:blocks.filter(b=>b.type==="study").reduce((a,b)=>a+(+b.duration||0),0),break:blocks.filter(b=>b.type==="break").reduce((a,b)=>a+(+b.duration||0),0),meal:blocks.filter(b=>b.type==="meal").reduce((a,b)=>a+(+b.duration||0),0),completed:blocks.filter(b=>b.type==="study"&&b.done===true).length,blocks:blocks.length}}
+function saveDaySnapshot(p,date,blocks){if(!Array.isArray(p.history))p.history=[];const t=dayTotals(blocks),todos=(p.todos||[]).filter(x=>x.date===date).map(x=>({...x}));let entry=p.history.find(x=>x.date===date);if(!entry){entry={date,...t};p.history.push(entry)}else{entry.study=entry.study??t.study;entry.break=entry.break??t.break;entry.meal=entry.meal??t.meal;entry.completed=entry.completed??t.completed;entry.blocks=entry.blocks??t.blocks}
+ entry.snapshot={blocks:blocks.map(b=>({...b})),todos,study:t.study,break:t.break,meal:t.meal,completed:t.completed,blocksCount:t.blocks,createdAt:new Date().toISOString()};}
+
+const uid=()=>Math.random().toString(36).slice(2,10);
+const mins=t=>{if(!t)return 0;const [h,m]=t.split(":").map(Number);return h*60+m};
+const timeStr=n=>{n=((n%1440)+1440)%1440;return String(Math.floor(n/60)).padStart(2,"0")+":"+String(n%60).padStart(2,"0")};
+const duration=n=>`${Math.floor(Math.max(0,n)/60)}h ${Math.round(Math.max(0,n)%60)}m`;
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const defaultMeals=[
+ {id:"breakfast",name:"Breakfast",included:true,time:"08:00",duration:30,type:"meal"},
+ {id:"snack1",name:"Morning snack",included:false,time:"11:00",duration:15,type:"meal"},
+ {id:"lunch",name:"Lunch",included:true,time:"13:00",duration:45,type:"meal"},
+ {id:"snack2",name:"Evening snack",included:false,time:"17:00",duration:15,type:"meal"},
+ {id:"dinner",name:"Dinner",included:true,time:"20:00",duration:45,type:"meal"}
+];
+function blankProfile(name="My Study Profile"){
+ return {id:uid(),name,exams:[],subjects:[
+  {id:uid(),name:"Physics",chapters:[]},{id:uid(),name:"Chemistry",chapters:[]},{id:uid(),name:"Biology",chapters:[]}
+ ],routine:{start:"06:00",end:"22:00",studyBlock:90,shortBreak:10,meals:structuredClone(defaultMeals),blocks:[],date:today()},history:[],todos:[],settings:{target:8,studyDayReset:"00:00"}};
+}
+let state=loadState(),activeProfileId=state.activeProfileId;
+function loadState(){try{const x=JSON.parse(localStorage.getItem(STORE_KEY));if(x&&Array.isArray(x.profiles)&&x.profiles.length)return x}catch(e){}const p=blankProfile("NEET 2027");return {profiles:[p],activeProfileId:p.id,appTitle:"Study Command Center"}}
+function save(){localStorage.setItem(STORE_KEY,JSON.stringify(state))}
+function profile(){return state.profiles.find(p=>p.id===activeProfileId)||state.profiles[0]}
+function ensureDay(){const p=profile();if(!p.settings)p.settings={target:8,studyDayReset:"00:00"};if(!p.settings.studyDayReset)p.settings.studyDayReset="00:00";if(!Array.isArray(p.settings.studyDayRules))p.settings.studyDayRules=[];if(!Array.isArray(p.todos))p.todos=[];if(!Array.isArray(p.history))p.history=[];const key=studyDayKey(p);if(p.routine.date!==key){const oldDate=p.routine.date||key;saveDaySnapshot(p,oldDate,p.routine.blocks||[]);p.routine.date=key;p.routine.blocks=[];save()}}
+function openTab(name){document.querySelectorAll(".view").forEach(v=>v.classList.toggle("active",v.id===name));document.querySelectorAll("[data-tab]").forEach(b=>b.classList.toggle("active",b.dataset.tab===name));renderAll()}
+document.querySelectorAll("[data-tab]").forEach(b=>b.addEventListener("click",()=>openTab(b.dataset.tab)));
+document.querySelectorAll("[data-goto]").forEach(b=>b.addEventListener("click",()=>openTab(b.dataset.goto)));
+$("goRoutine").onclick=()=>openTab("routine");
+function profileOptions(){const s=$("profileSelect");s.innerHTML=state.profiles.map(p=>`<option value="${p.id}">${esc(p.name)}</option>`).join("");s.value=activeProfileId}
+$("profileSelect").onchange=e=>{activeProfileId=e.target.value;state.activeProfileId=activeProfileId;save();renderAll()};
+function renderAll(){if(!profile())return;ensureDay();profileOptions();$("appTitle").textContent=state.appTitle||"Study Command Center";$("dashDate").textContent="Study Date: "+studyDayKey(profile())+" • India time (IST)";renderDashboard();renderTodo();renderRoutineSettings();renderRoutine();renderSyllabus();renderExams();renderHistory();renderHistoryDetail();renderSettings()}
+function allBlocks(){return profile().routine.blocks||[]}
+function totals(){const b=allBlocks();return {study:b.filter(x=>x.type==="study").reduce((s,x)=>s+x.duration,0),break:b.filter(x=>x.type==="break").reduce((s,x)=>s+x.duration,0),meal:b.filter(x=>x.type==="meal").reduce((s,x)=>s+x.duration,0),done:b.filter(x=>x.type==="study"&&x.done).length}}
+function syllabusStats(){const subs=profile().subjects;const chapters=subs.flatMap(s=>s.chapters);const done=chapters.filter(c=>c.status==="completed").length;return {total:chapters.length,done,pct:chapters.length?Math.round(done/chapters.length*100):0}}
+function activeExam(){return profile().exams.find(e=>e.active)||profile().exams[0]}
+function renderDashboard(){
+ const p=profile(),t=totals(),st=syllabusStats(),exam=activeExam();$("dashGreeting").textContent=p.name+" • Command Center";$("dashStudy").textContent=duration(t.study);$("dashBreak").textContent=duration(t.break);$("dashStudySub").textContent=`${t.done} study blocks completed`; $("dashProgress").textContent=st.pct+"%";$("dashProgressBar").style.width=st.pct+"%";
+ if(exam){const d=Math.ceil((new Date(exam.date+"T00:00:00")-new Date(today()+"T00:00:00"))/86400000);$("activeExamName").textContent=exam.name;$("examCountdown").textContent=d>0?`${d} days left`:d===0?"Exam day":`${Math.abs(d)} days past`;$("examDateText").textContent=new Date(exam.date+"T00:00:00").toLocaleDateString();$("examStatus").textContent=exam.active?"Active":"Saved"}else{$("activeExamName").textContent="No exam added";$("examCountdown").textContent="—";$("examDateText").textContent="Add an exam to see countdown";$("examStatus").textContent="No exam"}
+ const blocks=allBlocks().slice().sort((a,b)=>a.start.localeCompare(b.start));$("todayCount").textContent=blocks.length+" blocks";$("dashTimeline").innerHTML=blocks.length?blocks.map(blockHTML).join(""):'<div class="empty">No routine generated yet.</div>';
+ $("subjectProgress").innerHTML=p.subjects.length?p.subjects.map(s=>{const n=s.chapters.length,d=s.chapters.filter(c=>c.status==="completed").length,pc=n?Math.round(d/n*100):0;return `<div><div class="row between"><strong>${esc(s.name)}</strong><span class="muted">${d}/${n} • ${pc}%</span></div><div class="progress"><i style="width:${pc}%"></i></div></div>`}).join(""):'<div class="empty">No subjects yet.</div>';
+ const tasks=taskList(p,studyDayKey(p));const td=tasks.filter(x=>x.done===true).length;$("dashTodo").innerHTML=tasks.length?`<div class="muted">${td}/${tasks.length} completed • ${Math.round(td/tasks.length*100)}%</div>`+tasks.map(x=>`<div class="item row"><span class="pill">${x.done===true?"✓":"○"}</span><span style="${x.done===true?"text-decoration:line-through;opacity:.65":""}">${esc(x.title)}</span></div>`).join(""):'<div class="empty">Aaj ke tasks add karne ke liye To-do open karo.</div>';
+}
+function blockHTML(b){const label=b.type==="study"?"Study":(b.tag||(b.type==="meal"?"Meal":"Break"));return `<div class="timeitem ${b.type==="meal"?"meal":b.type==="study"?"study":"break"} ${b.done?"done":""}"><strong>${esc(b.start)}–${esc(b.end)}</strong><div><strong>${esc(b.title)}</strong><div class="muted">${b.duration} min • ${esc(label)}</div></div><span class="pill">${b.done&&b.type==="study"?"Done":esc(label)}</span></div>`}
+function renderRoutineSettings(){
+ const r=profile().routine;$("shiftStart").value=r.start;$("shiftEnd").value=r.end;$("studyBlock").value=r.studyBlock;$("shortBreak").value=r.shortBreak;
+ $("mealSettings").innerHTML=r.meals.map((m,i)=>{const typ=m.type==="meal"?"meal":"break";const tag=m.tag||(typ==="meal"?"Meal":"Break");return `<div class="item"><div class="row between"><label style="display:flex;align-items:center;gap:7px;margin:0"><input type="checkbox" data-meal-enabled="${i}" ${m.included?"checked":""}> <strong>${esc(m.name)}</strong></label><button class="small" data-meal-delete="${i}">Remove</button></div><div class="formgrid"><div><label>Category / tag</label><select data-meal-type="${i}"><option value="meal" ${typ==="meal"?"selected":""}>Meal</option><option value="break" ${typ==="break"?"selected":""}>Break</option><option value="outside" ${m.tag==="Outside work"?"selected":""}>Outside work</option><option value="personal" ${m.tag==="Personal work"?"selected":""}>Personal work</option><option value="other" ${m.tag==="Other"?"selected":""}>Other</option></select></div><div><label>Time</label><input type="time" data-meal-time="${i}" value="${m.time}"></div><div><label>Duration (min)</label><input type="number" min="5" max="180" data-meal-duration="${i}" value="${m.duration}"></div></div></div>`}).join("");
+ document.querySelectorAll("[data-meal-enabled]").forEach(e=>e.onchange=()=>{r.meals[+e.dataset.mealEnabled].included=e.checked;save()});
+ document.querySelectorAll("[data-meal-type]").forEach(e=>e.onchange=()=>{const m=r.meals[+e.dataset.mealType];const v=e.value;m.type=v==="meal"?"meal":"break";m.tag=v==="meal"?"Meal":v==="break"?"Break":v==="outside"?"Outside work":v==="personal"?"Personal work":"Other";save();renderAll()});
+ document.querySelectorAll("[data-meal-time]").forEach(e=>e.onchange=()=>{r.meals[+e.dataset.mealTime].time=e.value;save()});
+ document.querySelectorAll("[data-meal-duration]").forEach(e=>e.onchange=()=>{r.meals[+e.dataset.mealDuration].duration=clamp(+e.value,5,180);save()});
+ document.querySelectorAll("[data-meal-delete]").forEach(e=>e.onclick=()=>{r.meals.splice(+e.dataset.mealDelete,1);save();renderRoutineSettings()});
+}
+const clamp=(n,a,b)=>Math.min(b,Math.max(a,n||a));
+$("saveRoutineSettings").onclick=()=>{const r=profile().routine;r.start=$("shiftStart").value;r.end=$("shiftEnd").value;r.studyBlock=clamp(+$("studyBlock").value,15,240);r.shortBreak=clamp(+$("shortBreak").value,0,90);save();alert("Routine settings saved.")};
+$("resetRoutine").onclick=()=>{if(confirm("Reset today's generated routine?")){profile().routine.blocks=[];save();renderAll()}};
+$("addBreakBtn").onclick=()=>{const name=prompt("Break / activity name?");if(!name||!name.trim())return;const choice=prompt("Category tag choose karo:\n1 = Break\n2 = Meal\n3 = Outside work\n4 = Personal work\n5 = Other","1");if(choice===null)return;const map={"1":{type:"break",tag:"Break"},"2":{type:"meal",tag:"Meal"},"3":{type:"break",tag:"Outside work"},"4":{type:"break",tag:"Personal work"},"5":{type:"break",tag:"Other"}};const cat=map[choice]||{type:"break",tag:choice.trim()||"Break"};profile().routine.meals.push({id:uid(),name:name.trim(),time:"15:00",duration:15,included:true,type:cat.type,tag:cat.tag});save();renderRoutineSettings()};
+function generate(){
+ const p=profile(),r=p.routine;r.start=$("shiftStart").value;r.end=$("shiftEnd").value;r.studyBlock=clamp(+$("studyBlock").value,15,240);r.shortBreak=clamp(+$("shortBreak").value,0,90);
+ let start=mins(r.start),end=mins(r.end);if(end<=start)end+=1440;
+ const meals=r.meals.filter(m=>m.included).map(m=>({at:mins(m.time),duration:clamp(+m.duration,5,180),title:m.name,type:m.type==="meal"?"meal":"break",tag:m.tag||(m.type==="meal"?"Meal":"Break")})).map(m=>({...m,at:m.at<start?m.at+1440:m.at})).filter(m=>m.at>=start&&m.at<end).sort((a,b)=>a.at-b.at);
+ const blocks=[];let cursor=start,mealIndex=0,studyCount=0;
+ function add(type,title,dur){if(dur<=0)return;const s=cursor,e=Math.min(cursor+dur,end);if(e>s){blocks.push({id:uid(),type,title,duration:e-s,start:timeStr(s),end:timeStr(e),done:false});cursor=e}}
+ while(cursor<end-4){
+  while(mealIndex<meals.length&&meals[mealIndex].at<cursor){mealIndex++}
+  const nextMeal=meals[mealIndex];
+  if(nextMeal&&nextMeal.at<=cursor+2){cursor=nextMeal.at;const addedType=nextMeal.type;add(addedType,nextMeal.title,nextMeal.duration);const last=blocks[blocks.length-1];if(last)last.tag=nextMeal.tag;mealIndex++;continue}
+  let untilMeal=nextMeal?nextMeal.at-cursor:end-cursor;
+  if(untilMeal<=0){mealIndex++;continue}
+  const dur=Math.min(r.studyBlock,untilMeal,end-cursor);
+  if(dur<15){if(nextMeal&&nextMeal.at>cursor){cursor=nextMeal.at;continue}break}
+  add("study","Study session "+(++studyCount),dur);
+  if(cursor<end&&r.shortBreak>0&&(!nextMeal||cursor+r.shortBreak<=nextMeal.at))add("break","Short break",r.shortBreak);
+ }
+ r.blocks=blocks;r.date=studyDayKey(p);save();renderAll()
+}
+$("generateRoutine").onclick=generate;
+function renderRoutine(){
+ const t=totals();$("routineDate").textContent=studyDayKey(profile());$("routineStudyTotal").textContent=duration(t.study);$("routineBreakTotal").textContent=duration(t.break);$("routineMealTotal").textContent=duration(t.meal);
+ const b=allBlocks().slice().sort((a,b)=>a.start.localeCompare(b.start));$("routineTimeline").innerHTML=b.length?b.map(x=>{const label=x.type==="study"?"Study":(x.tag||(x.type==="meal"?"Meal":"Break"));return `<div class="timeitem ${x.type==="meal"?"meal":x.type==="study"?"study":"break"} ${x.done?"done":""}"><strong>${esc(x.start)}–${esc(x.end)}</strong><div><strong>${esc(x.title)}</strong><div class="muted">${x.duration} min • ${esc(label)}</div></div><div class="actions">${x.type==="study"?`<button class="small" data-done="${x.id}">${x.done?"Undo":"Done"}</button>`:""}<button class="small" data-editblock="${x.id}">Edit</button><button class="small danger" data-delblock="${x.id}">×</button></div></div>`}).join(""):'<div class="empty">Routine is empty. Set your shift and tap Generate routine.</div>';
+ document.querySelectorAll("[data-done]").forEach(e=>e.onclick=()=>{const x=allBlocks().find(b=>b.id===e.dataset.done);x.done=!x.done;save();renderAll()});
+ document.querySelectorAll("[data-delblock]").forEach(e=>e.onclick=()=>{profile().routine.blocks=allBlocks().filter(b=>b.id!==e.dataset.delblock);save();renderAll()});
+ document.querySelectorAll("[data-editblock]").forEach(e=>e.onclick=()=>editBlock(e.dataset.editblock));
+}
+function editBlock(id){const b=allBlocks().find(x=>x.id===id);if(!b)return;const title=prompt("Block title",b.title);if(title===null)return;const dur=prompt("Duration in minutes",b.duration);if(dur===null)return;b.title=title;b.duration=clamp(+dur,1,600);if(b.type!=="study"){const tag=prompt("Category/tag (e.g. Break, Meal, Outside work, Personal work)",b.tag||(b.type==="meal"?"Meal":"Break"));if(tag!==null){b.tag=tag.trim()||"Break";b.type=/^meal$/i.test(b.tag)?"meal":"break"}}b.end=timeStr(mins(b.start)+b.duration);save();renderAll()}
+function manualBlock(type){const title=prompt(type==="study"?"Study block name":"Break / activity name",type==="study"?"Extra study":"Break");if(!title||!title.trim())return;let actualType=type,tag=type==="study"?"Study":"Break";if(type!=="study"){const choice=prompt("Category tag:\n1 = Break\n2 = Meal\n3 = Outside work\n4 = Personal work\n5 = Other","1");if(choice===null)return;const map={"1":{type:"break",tag:"Break"},"2":{type:"meal",tag:"Meal"},"3":{type:"break",tag:"Outside work"},"4":{type:"break",tag:"Personal work"},"5":{type:"break",tag:"Other"}};const cat=map[choice]||{type:"break",tag:choice.trim()||"Break"};actualType=cat.type;tag=cat.tag}const start=prompt("Start time (HH:MM)",timeStr(mins(profile().routine.end)-30));if(!start)return;const durationM=clamp(+prompt("Duration in minutes","30"),1,600);profile().routine.blocks.push({id:uid(),type:actualType,tag,title:title.trim(),duration:durationM,start,end:timeStr(mins(start)+durationM),done:false});save();renderAll()}
+$("addStudyBlock").onclick=()=>manualBlock("study");$("addManualBreak").onclick=()=>manualBlock("break");
+$("logDay").onclick=()=>{const p=profile(),date=studyDayKey(p),t=totals(),entry={date,study:t.study,break:t.break,meal:t.meal,completed:t.done,blocks:allBlocks().length};const old=p.history.findIndex(x=>x.date===date);if(old>=0)Object.assign(p.history[old],entry);else p.history.push(entry);saveDaySnapshot(p,date,allBlocks());save();alert("Study Day snapshot saved to history.");renderAll()};
+function renderTodo(){const p=profile(),date=$("todoDate").value||studyDayKey(p);$("todoDate").value=date;const list=taskList(p,date),done=list.filter(t=>t.done===true).length,pct=list.length?Math.round(done/list.length*100):0;$("todoPercent").textContent=pct+"% • "+done+"/"+list.length;$("todoProgressBar").style.width=pct+"%";$("todoList").innerHTML=list.length?list.map(t=>`<div class="item row between"><label style="display:flex;align-items:center;gap:9px;flex:1;margin:0;color:var(--text)"><input type="checkbox" data-tododone="${t.id}" ${t.done===true?"checked":""}><span style="${t.done===true?"text-decoration:line-through;opacity:.65":""}">${esc(t.title)}</span></label><div class="actions"><button class="small" data-todoedit="${t.id}">Edit</button><button class="small danger" data-tododel="${t.id}">Delete</button></div></div>`).join(""):'<div class="empty">Is date par koi task nahi. + Add task se shuru karo.</div>';document.querySelectorAll("[data-tododone]").forEach(e=>e.onchange=()=>{const t=p.todos.find(x=>x.id===e.dataset.tododone);if(t){t.done=e.checked;const h=p.history.find(x=>x.date===t.date);if(h?.snapshot)h.snapshot.todos=(p.todos||[]).filter(x=>x.date===t.date).map(x=>({...x}));save();renderTodo();renderDashboard();renderHistoryDetail()}});document.querySelectorAll("[data-todoedit]").forEach(e=>e.onclick=()=>{const t=p.todos.find(x=>x.id===e.dataset.todoedit),title=prompt("Task name",t?.title||"");if(title&&title.trim()){t.title=title.trim();save();renderTodo();renderDashboard()}});document.querySelectorAll("[data-tododel]").forEach(e=>e.onclick=()=>{if(confirm("Delete this task?")){p.todos=p.todos.filter(x=>x.id!==e.dataset.tododel);save();renderTodo();renderDashboard()}})}
+function addTodo(){const p=profile(),date=$("todoDate").value||studyDayKey(p),title=prompt("Task name");if(!title||!title.trim())return;if(!Array.isArray(p.todos))p.todos=[];p.todos.push({id:uid(),date,title:title.trim(),done:false,createdAt:new Date().toISOString()});save();renderAll()}
+$("addTodoBtn").onclick=addTodo;$("todoDate").onchange=renderTodo;
+function renderSyllabus(){
+ const p=profile();$("syllabusList").innerHTML=p.subjects.length?p.subjects.map(s=>`<div class="card"><div class="sectionhead"><div><h2>${esc(s.name)}</h2><p>${s.chapters.filter(c=>c.status==="completed").length}/${s.chapters.length} chapters completed</p></div><div class="actions"><button class="small" data-addchap="${s.id}">+ Chapter</button><button class="small" data-editsub="${s.id}">Rename</button><button class="small danger" data-delsub="${s.id}">Delete</button></div></div><div class="stack">${s.chapters.length?s.chapters.map(c=>`<div class="item row between"><div style="flex:1"><strong>${esc(c.name)}</strong><div class="muted">${esc(c.status||"not-started")}</div></div><select data-chstatus="${c.id}" data-sub="${s.id}" style="width:auto"><option value="not-started" ${c.status==="not-started"?"selected":""}>Not started</option><option value="in-progress" ${c.status==="in-progress"?"selected":""}>In progress</option><option value="completed" ${c.status==="completed"?"selected":""}>Completed</option></select><button class="small" data-editchap="${s.id}|${c.id}">Edit</button><button class="small danger" data-delchap="${s.id}|${c.id}">×</button></div>`).join(""):'<div class="empty">No chapters. Add one to begin.</div>'}</div></div>`).join(""):'<div class="empty">Add a subject to start your syllabus.</div>';
+ document.querySelectorAll("[data-addchap]").forEach(e=>e.onclick=()=>addChapter(e.dataset.addchap));
+ document.querySelectorAll("[data-editsub]").forEach(e=>{e.onclick=()=>{const s=p.subjects.find(x=>x.id===e.dataset.editsub),n=prompt("Subject name",s.name);if(n){s.name=n;save();renderAll()}}});
+ document.querySelectorAll("[data-delsub]").forEach(e=>e.onclick=()=>{if(confirm("Delete this subject and its chapters?")){p.subjects=p.subjects.filter(s=>s.id!==e.dataset.delsub);save();renderAll()}});
+ document.querySelectorAll("[data-chstatus]").forEach(e=>e.onchange=()=>{const s=p.subjects.find(x=>x.id===e.dataset.sub),c=s.chapters.find(x=>x.id===e.dataset.chstatus);c.status=e.value;save();renderAll()});
+ document.querySelectorAll("[data-editchap]").forEach(e=>e.onclick=()=>{const [sid,cid]=e.dataset.editchap.split("|");const c=p.subjects.find(s=>s.id===sid).chapters.find(x=>x.id===cid),n=prompt("Chapter name",c.name);if(n){c.name=n;save();renderAll()}});
+ document.querySelectorAll("[data-delchap]").forEach(e=>e.onclick=()=>{const [sid,cid]=e.dataset.delchap.split("|"),s=p.subjects.find(x=>x.id===sid);s.chapters=s.chapters.filter(c=>c.id!==cid);save();renderAll()});
+}
+function addSubject(){const n=prompt("Subject name");if(!n)return;profile().subjects.push({id:uid(),name:n,chapters:[]});save();renderAll()}
+function addChapter(subjectId){const p=profile();let s=subjectId?p.subjects.find(x=>x.id===subjectId):null;if(!s){const names=p.subjects.map((x,i)=>`${i+1}. ${x.name}`).join("\n");const pick=prompt("Enter subject number:\n"+names);if(!pick)return;s=p.subjects[+pick-1]}if(!s)return;const n=prompt("Chapter name");if(!n)return;s.chapters.push({id:uid(),name:n,status:"not-started"});save();renderAll()}
+$("addSubjectBtn").onclick=addSubject;$("addChapterBtn").onclick=()=>addChapter();
+function renderExams(){const p=profile();$("examList").innerHTML=p.exams.length?p.exams.map(e=>`<div class="item row between"><div style="flex:1"><h3>${esc(e.name)} ${e.active?'<span class="pill">Active</span>':""}</h3><p>${esc(e.date)} • ${Math.ceil((new Date(e.date+"T00:00:00")-new Date(today()+"T00:00:00"))/86400000)} days relative to today</p></div><div class="actions"><button class="small" data-activeexam="${e.id}">${e.active?"Active":"Set active"}</button><button class="small" data-editexam="${e.id}">Edit</button><button class="small danger" data-delexam="${e.id}">Delete</button></div></div>`).join(""):'<div class="empty">No exams added. Add your exam name and target date.</div>';
+ document.querySelectorAll("[data-activeexam]").forEach(b=>b.onclick=()=>{p.exams.forEach(e=>e.active=e.id===b.dataset.activeexam);save();renderAll()});
+ document.querySelectorAll("[data-editexam]").forEach(b=>b.onclick=()=>editExam(b.dataset.editexam));
+ document.querySelectorAll("[data-delexam]").forEach(b=>b.onclick=()=>{if(confirm("Delete this exam?")){p.exams=p.exams.filter(e=>e.id!==b.dataset.delexam);save();renderAll()}});
+}
+function addExam(existing){const p=profile(),e=existing?p.exams.find(x=>x.id===existing):null;const name=prompt("Exam name",e?.name||"NEET-UG 2027");if(!name)return;const date=prompt("Exam date (YYYY-MM-DD)",e?.date||"2027-05-02");if(!date||!/^\d{4}-\d{2}-\d{2}$/.test(date)){alert("Enter date as YYYY-MM-DD");return}if(!e&&p.exams.length===0)p.exams.push({id:uid(),name,date,active:true});else if(e){e.name=name;e.date=date}else p.exams.push({id:uid(),name,date,active:false});save();renderAll()}
+function editExam(id){addExam(id)}$("addExamBtn").onclick=()=>addExam();
+function renderHistory(){const h=profile().history.slice().sort((a,b)=>b.date.localeCompare(a.date));$("historyStudy").textContent=duration(h.reduce((s,x)=>s+(+x.study||0),0));$("historyBreak").textContent=duration(h.reduce((s,x)=>s+(+x.break||0),0));$("historyDays").textContent=h.length;$("historyTable").innerHTML=h.length?h.map(x=>`<tr><td>${esc(x.date)}</td><td>${duration(x.study||0)}</td><td>${duration(x.break||0)}</td><td>${duration(x.meal||0)}</td><td>${x.completed===undefined?"Not marked":x.completed}/${x.blocks===undefined?"Not marked":x.blocks}</td><td><div class="actions"><button class="small" data-viewhistory="${x.date}">Details</button><button class="small danger" data-delhistory="${x.date}">Delete</button></div></td></tr>`).join(""):'<tr><td colspan="6" class="muted">No history saved yet.</td></tr>';document.querySelectorAll("[data-delhistory]").forEach(b=>b.onclick=()=>{profile().history=profile().history.filter(x=>x.date!==b.dataset.delhistory);save();renderAll()});document.querySelectorAll("[data-viewhistory]").forEach(b=>b.onclick=()=>{$("historyDetailDate").value=b.dataset.viewhistory;renderHistoryDetail()})}
+function renderHistoryDetail(){const p=profile(),date=$("historyDetailDate").value||studyDayKey(p);if(!$("historyDetailDate"))return;$("historyDetailDate").value=date;const e=(p.history||[]).find(x=>x.date===date),box=$("historyDetail"),snap=e?.snapshot;const liveTodos=(p.todos||[]).filter(t=>t.date===date);if(!e&&!liveTodos.length){box.innerHTML='<div class="empty">Is date ke liye saved history ya tasks nahi hain.</div>';return}const blocks=snap?.blocks||[];const todoMarkup=liveTodos.length?liveTodos.map(t=>`<div class="item row between"><label style="display:flex;align-items:center;gap:9px;flex:1;margin:0;color:var(--text)"><input type="checkbox" data-historytodo="${t.id}" ${t.done===true?"checked":""}><span style="${t.done===true?"text-decoration:line-through;opacity:.65":""}">${esc(t.title)}</span></label><span class="pill">${t.done===true?"Completed":"Incomplete"}</span></div>`).join(""):'<div class="empty">Is date ke liye koi To-do task saved nahi hai.</div>';box.innerHTML=`${e?`<div class="notice">Study: ${duration(snap?.study??e.study??0)} • Break: ${duration(snap?.break??e.break??0)} • Meals: ${duration(snap?.meal??e.meal??0)}<br>Study blocks completed: ${snap?.completed===undefined?(e.completed===undefined?"Not marked":e.completed):snap.completed}/${snap?.blocksCount===undefined?(e.blocks===undefined?"Not marked":e.blocks):snap.blocksCount}</div>`:'<div class="notice">Tasks for this date. Completion can be updated here even after the Study Day has ended.</div>'}<h3>Routine blocks</h3>${e?(snap?blocks.length?blocks.map(b=>`<div class="item row between"><div><strong>${esc(b.start||"--:--")}–${esc(b.end||"--:--")} • ${esc(b.title||b.type)}</strong><p>${esc(b.type||"Block")} • ${b.duration||0} min</p></div><span class="pill">${b.type==="study"?(b.done===true?"Completed":b.done===false?"Incomplete":"Not marked"):"—"}</span></div>`).join(""):'<div class="empty">No routine blocks saved.</div>':'<div class="notice">Is older record mein routine ka detailed snapshot nahi tha. Completion status: Not marked.</div>'):'<div class="empty">No routine history saved for this date.</div>'}<h3>To-do tasks</h3>${todoMarkup}`;document.querySelectorAll("[data-historytodo]").forEach(input=>input.onchange=()=>{const task=p.todos.find(t=>t.id===input.dataset.historytodo);if(!task)return;task.done=input.checked;const entry=p.history.find(x=>x.date===date);if(entry?.snapshot){entry.snapshot.todos=(p.todos||[]).filter(t=>t.date===date).map(t=>({...t}))}save();renderHistoryDetail();renderHistory();renderDashboard();if($("todoDate").value===date)renderTodo()})}
+$("historyDetailDate").onchange=renderHistoryDetail;
+$("exportCSV").onclick=()=>{const rows=[["Study date","Study minutes","Break minutes","Meal minutes","Completed blocks","Total blocks","Snapshot saved"],...profile().history.map(x=>[x.date,x.study??"",x.break??"",x.meal??"",x.completed??"Not marked",x.blocks??"Not marked",x.snapshot?"Yes":"No"])];downloadFile(rows.map(r=>r.join(",")).join("\n"),"study-history.csv","text/csv")};
+$("printReport").onclick=()=>window.print();
+function renderSettings(){$("customTitle").value=state.appTitle||"";$("todayTarget").value=profile().settings.target||8;$("studyDayReset").value=profile().settings.studyDayReset||"00:00";$("studyDayEffectiveDate").value=today();$("profileList").innerHTML=state.profiles.map(p=>`<div class="item row between"><strong>${esc(p.name)}</strong><div class="actions"><button class="small" data-renameprofile="${p.id}">Rename</button>${state.profiles.length>1?`<button class="small danger" data-delprofile="${p.id}">Delete</button>`:""}</div></div>`).join("");document.querySelectorAll("[data-renameprofile]").forEach(b=>b.onclick=()=>{const p=state.profiles.find(x=>x.id===b.dataset.renameprofile),n=prompt("Profile name",p.name);if(n){p.name=n;save();renderAll()}});document.querySelectorAll("[data-delprofile]").forEach(b=>b.onclick=()=>{if(state.profiles.length<2)return;if(confirm("Delete this profile and all its data?")){state.profiles=state.profiles.filter(p=>p.id!==b.dataset.delprofile);if(activeProfileId===b.dataset.delprofile)activeProfileId=state.profiles[0].id;state.activeProfileId=activeProfileId;save();renderAll()}})}
+$("saveAppSettings").onclick=()=>{const p=profile(),effectiveFrom=$("studyDayEffectiveDate").value,resetTime=$("studyDayReset").value;if(!effectiveFrom||!resetTime){alert("Study Day effective date aur reset time dono select karo.");return}state.appTitle=$("customTitle").value.trim()||"Study Command Center";p.settings.target=clamp(+$("todayTarget").value,1,24);if(!Array.isArray(p.settings.studyDayRules))p.settings.studyDayRules=[];if(p.settings.studyDayRules.length===0){p.settings.studyDayRules.push({effectiveFrom:"0001-01-01",resetTime:p.settings.studyDayReset||"00:00"})}p.settings.studyDayRules=p.settings.studyDayRules.filter(r=>r.effectiveFrom!==effectiveFrom);p.settings.studyDayRules.push({effectiveFrom,resetTime});p.settings.studyDayRules.sort((a,b)=>a.effectiveFrom.localeCompare(b.effectiveFrom));p.settings.studyDayReset=resetTime;p.settings.studyDayEffectiveFrom=effectiveFrom;ensureDay();save();renderAll();alert("Study Day date aur reset time ek saath save ho gaye. Purane dates ka reset rule preserve hai.")};
+$("addProfileBtn").onclick=()=>{const n=prompt("New profile name");if(!n)return;const p=blankProfile(n);state.profiles.push(p);activeProfileId=p.id;state.activeProfileId=p.id;save();renderAll()};
+function downloadFile(content,name,type){const blob=new Blob([content],{type}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download=name;a.click();URL.revokeObjectURL(url)}
+$("downloadBackup").onclick=()=>downloadFile(JSON.stringify(state,null,2),"study-command-center-backup-"+today()+".json","application/json");
+$("restoreBackup").onclick=()=>{const f=$("restoreFile").files[0];if(!f){alert("Select a JSON backup first.");return}if(!confirm("Restore backup? Current app data will be replaced. Download a backup of current data first if needed."))return;const reader=new FileReader();reader.onload=()=>{try{const x=JSON.parse(reader.result);if(!Array.isArray(x.profiles)||!x.profiles.length)throw Error("Invalid backup");state=x;activeProfileId=state.activeProfileId||state.profiles[0].id;save();renderAll();alert("Backup restored.")}catch(e){alert("Could not restore: "+e.message)}};reader.readAsText(f)};
+$("addProfileBtn").title="Create a separate exam/study profile";
+$("addBreakBtn").title="Add another meal or fixed break";
+$("addExamBtn").title="Add an exam";
+$("addChapterBtn").title="Add a chapter to a subject";
+renderAll();
+if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}))}
+</script>
+</body>
+</html>
