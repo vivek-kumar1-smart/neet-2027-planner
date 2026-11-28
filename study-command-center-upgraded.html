@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Study Command Center</title>
+<style>
+:root{--bg:#f4f6fb;--panel:#fff;--text:#182033;--muted:#6b7280;--line:#e5e9f2;--primary:#4f46e5;--primary2:#eef2ff;--green:#16845b;--red:#c24141;--shadow:0 8px 24px #1b254014}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:15px/1.45 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+header{background:#171d35;color:#fff;padding:18px max(18px,calc((100% - 1100px)/2));display:flex;gap:14px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.brand{font-size:20px;font-weight:800;letter-spacing:.2px}.sub{color:#b9c2df;font-size:12px;margin-top:3px}
+select,input,textarea,button{font:inherit}select,input,textarea{background:#fff;color:var(--text);border:1px solid var(--line);border-radius:10px;padding:10px;width:100%;outline-color:var(--primary)}
+header select{width:auto;min-width:150px}
+nav{display:flex;gap:8px;flex-wrap:wrap;max-width:1100px;margin:18px auto 0;padding:0 16px}
+nav button{border:0;background:transparent;color:var(--muted);padding:10px 14px;border-radius:10px;cursor:pointer;font-weight:650}
+nav button.active{background:var(--primary2);color:var(--primary)}
+main{max-width:1100px;margin:18px auto;padding:0 16px 40px}
+h1{font-size:26px;margin:0 0 5px}h2{font-size:18px;margin:0 0 14px}h3{font-size:15px;margin:0 0 8px}
+p{margin:5px 0;color:var(--muted)}.muted{color:var(--muted)}.small{font-size:12px}
+.grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:14px}.card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px;box-shadow:var(--shadow);min-width:0}.span12{grid-column:span 12}.span8{grid-column:span 8}.span6{grid-column:span 6}.span4{grid-column:span 4}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:18px 0}.stat{padding:16px;border-radius:14px;background:#fff;border:1px solid var(--line)}.stat strong{display:block;font-size:25px}.stat span{color:var(--muted);font-size:12px}
+.btn{border:0;border-radius:10px;padding:10px 14px;background:var(--primary);color:#fff;font-weight:700;cursor:pointer}.btn.secondary{background:#eef0f6;color:#293047}.btn.danger{background:#fff0f0;color:var(--red)}.btn.smallbtn{padding:6px 9px;font-size:12px}.actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.field{display:flex;flex-direction:column;gap:6px;margin:10px 0}.field label{font-size:12px;font-weight:700;color:#586078}.formgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.rowitem{display:flex;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)}.rowitem:last-child{border-bottom:0}.rowitem .grow{flex:1;min-width:0}.rowitem.done .grow>strong{text-decoration:line-through;color:var(--muted)}
+.check{width:19px;height:19px;accent-color:var(--primary);flex:0 0 auto}.pill{font-size:11px;padding:4px 8px;border-radius:99px;background:#f0f2f7;color:#60677b;white-space:nowrap}.pill.done{background:#e7f7ef;color:var(--green)}.progress{height:9px;background:#eceff5;border-radius:99px;overflow:hidden}.progress>div{height:100%;background:var(--primary);width:0;transition:width .2s}
+.view{display:none}.view.active{display:block}.empty{padding:24px;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:12px}
+.datebar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:16px 0}.datebar input{width:auto}.datebar button{cursor:pointer}
+.historyday{border:1px solid var(--line);border-radius:12px;padding:14px;margin:10px 0}.historyday summary{cursor:pointer;font-weight:750}.historyday .rowitem{font-size:13px}
+.notice{background:#fff8e7;border:1px solid #f5e2ad;border-radius:12px;padding:12px;color:#72551a;font-size:13px}
+footer{max-width:1100px;margin:auto;padding:0 16px 30px;color:var(--muted);font-size:12px}
+@media(max-width:700px){.stats{grid-template-columns:repeat(2,1fr)}.span8,.span6,.span4{grid-column:span 12}.formgrid{grid-template-columns:1fr}header{padding:16px}.brand{font-size:18px}}
+</style>
+</head>
+<body>
+<header>
+  <div><div class="brand">Study Command Center</div><div class="sub">Plan • Track • Review</div></div>
+  <div class="actions"><select id="profileSelect" aria-label="Profile"></select><button class="btn secondary" id="addProfile">+ Profile</button></div>
+</header>
+<nav id="nav">
+<button class="active" data-view="dashboard">Dashboard</button><button data-view="routine">Routine</button><button data-view="todo">To-do</button><button data-view="history">History</button><button data-view="subjects">Subjects</button><button data-view="settings">Settings & Backup</button>
+</nav>
+<main>
+<section id="view-dashboard" class="view active">
+<h1>Dashboard</h1><p id="todayLabel">Your current study day</p>
+<div class="stats">
+<div class="stat"><strong id="statTasks">0/0</strong><span>To-do completed</span></div>
+<div class="stat"><strong id="statRoutine">0/0</strong><span>Routine completed</span></div>
+<div class="stat"><strong id="statStudy">0 min</strong><span>Planned study time</span></div>
+<div class="stat"><strong id="statDay">Day 1</strong><span>Study day count</span></div>
+</div>
+<div class="grid">
+<div class="card span6"><h2>Today's To-do</h2><div id="dashTasks"></div><button class="btn secondary" onclick="go('todo')">Open To-do</button></div>
+<div class="card span6"><h2>Today's Routine</h2><div id="dashRoutine"></div><button class="btn secondary" onclick="go('routine')">Open Routine</button></div>
+<div class="card span12"><h2>Daily progress</h2><div class="progress"><div id="dayProgress"></div></div><p id="progressText" class="small"></p></div>
+</div>
+</section>
+<section id="view-routine" class="view">
+<h1>Routine</h1><p>Study blocks for the selected Study Day. Check off a block when you finish it.</p>
+<div class="datebar"><button class="btn secondary" id="routinePrev">← Previous day</button><input type="date" id="routineDate"><button class="btn secondary" id="routineNext">Next day →</button><button class="btn secondary" id="routineToday">Today</button></div>
+<div class="grid"><div class="card span8"><h2>Blocks</h2><div id="routineList"></div></div><div class="card span4"><h2>Add routine block</h2>
+<form id="routineForm"><div class="field"><label>Block title</label><input id="routineTitle" required placeholder="e.g. Physics — Electrostatics"></div><div class="formgrid"><div class="field"><label>Start</label><input id="routineStart" type="time" value="06:00" required></div><div class="field"><label>End</label><input id="routineEnd" type="time" value="07:30" required></div></div><div class="field"><label>Notes (optional)</label><input id="routineNotes" placeholder="Chapter / target"></div><button class="btn" type="submit">Add block</button></form></div></div>
+</section>
+<section id="view-todo" class="view">
+<h1>To-do</h1><p>Tasks are saved by Study Day and separately for each profile.</p>
+<div class="datebar"><button class="btn secondary" id="todoPrev">← Previous day</button><input type="date" id="todoDate"><button class="btn secondary" id="todoNext">Next day →</button><button class="btn secondary" id="todoToday">Today</button></div>
+<div class="grid"><div class="card span8"><h2>Tasks <span class="pill" id="todoCount">0%</span></h2><div class="progress"><div id="todoProgress"></div></div><div id="todoList"></div></div><div class="card span4"><h2>Add task</h2><form id="todoForm"><div class="field"><label>Task</label><input id="todoTitle" required placeholder="e.g. Revise chemical bonding"></div><div class="field"><label>Details (optional)</label><textarea id="todoDetails" rows="3" placeholder="Small steps / notes"></textarea></div><button class="btn" type="submit">Add task</button></form></div></div>
+</section>
+<section id="view-history" class="view">
+<h1>History</h1><p>Each day is stored as a snapshot. Later edits to today's plan won't rewrite older saved days.</p>
+<div class="datebar"><button class="btn secondary" id="historyPrev">← Previous day</button><input type="date" id="historyDate"><button class="btn secondary" id="historyNext">Next day →</button><button class="btn secondary" id="historyToday">Today</button></div>
+<div id="historyContent" class="card"></div>
+</section>
+<section id="view-subjects" class="view">
+<h1>Subjects & chapters</h1><p>Keep a simple syllabus list for the selected profile.</p>
+<div class="grid"><div class="card span6"><h2>Add subject</h2><form id="subjectForm"><div class="field"><label>Subject name</label><input id="subjectName" required placeholder="Physics"></div><button class="btn">Add subject</button></form><div id="subjectList"></div></div><div class="card span6"><h2>Chapters</h2><div class="field"><label>Choose subject</label><select id="chapterSubject"></select></div><form id="chapterForm"><div class="field"><label>Chapter / topic</label><input id="chapterName" required placeholder="Current electricity"></div><button class="btn">Add chapter</button></form><div id="chapterList"></div></div></div>
+</section>
+<section id="view-settings" class="view">
+<h1>Settings & Backup</h1>
+<div class="grid"><div class="card span6"><h2>Study Day reset</h2><p>Study Day changes at this time, not at midnight. Example: 10:30 AM to next day 10:29 AM.</p><div class="field"><label>Reset time</label><input type="time" id="resetTime" value="00:00"></div><button class="btn" id="saveReset">Save reset time</button><p class="small">Calendar dates remain normal dates; Study Day is calculated using this reset time.</p></div>
+<div class="card span6"><h2>Profile</h2><div class="field"><label>Profile name</label><input id="profileName"></div><div class="actions"><button class="btn" id="renameProfile">Rename profile</button><button class="btn danger" id="deleteProfile">Delete profile</button></div><p class="small">Deleting a profile removes its locally stored data. Export a backup first if needed.</p></div>
+<div class="card span12"><h2>Backup / Restore</h2><p>Backup includes profiles, tasks, routine blocks, subjects, settings and saved history.</p><div class="actions"><button class="btn" id="exportBackup">Download backup</button><label class="btn secondary" for="importFile" style="cursor:pointer">Restore backup</label><input type="file" id="importFile" accept="application/json,.json" hidden></div><p id="backupMsg" class="small"></p></div></div>
+</section>
+</main>
+<footer>Data is stored in this browser on this device. Export a backup regularly if you need to keep your data safe.</footer>
+<script>
+'use strict';
+const $=id=>document.getElementById(id);
+const todayISO=()=>{const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`};
+const shiftDate=(iso,n)=>{const d=new Date(iso+'T12:00:00');d.setDate(d.getDate()+n);return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`};
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+const defaultData=()=>({profiles:{default:{name:'My Study Profile',reset:'00:00',tasks:{},routine:{},subjects:[],history:{},created:todayISO()}},active:'default'});
+let data;
+try{data=JSON.parse(localStorage.getItem('studyCommandCenterV1'))||defaultData()}catch(e){data=defaultData()}
+if(!data.profiles||!Object.keys(data.profiles).length)data=defaultData();
+if(!data.active||!data.profiles[data.active])data.active=Object.keys(data.profiles)[0];
+let routineDate=todayISO(),todoDate=todayISO(),historyDate=todayISO();
+function save(){localStorage.setItem('studyCommandCenterV1',JSON.stringify(data))}
+function profile(){return data.profiles[data.active]}
+function resetMinutes(){const [h,m]=(profile().reset||'00:00').split(':').map(Number);return h*60+m}
+function studyKey(iso){const [y,mo,da]=iso.split('-').map(Number);const d=new Date(y,mo-1,da,12,0,0);if(d.getHours()*60+d.getMinutes()<resetMinutes())d.setDate(d.getDate()-1);return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`}
+function todayKey(){return studyKey(todayISO())}
+function studyDayNumber(key){const p=profile();const start=p.created||key;return Math.max(1,Math.floor((new Date(key+'T12:00:00')-new Date(start+'T12:00:00'))/86400000)+1)}
+function ensureDay(key){const p=profile();p.tasks[key] ||= [];p.routine[key] ||= [];return key}
+function snapshot(key){const p=profile();ensureDay(key);p.history[key]={key,savedAt:new Date().toISOString(),tasks:JSON.parse(JSON.stringify(p.tasks[key])),routine:JSON.parse(JSON.stringify(p.routine[key])),subjects:JSON.parse(JSON.stringify(p.subjects||[])),reset:p.reset||'00:00',dayNumber:studyDayNumber(key)};save()}
+function taskStats(key){const a=profile().tasks[key]||[];return {all:a.length,done:a.filter(x=>x.done).length,percent:a.length?Math.round(a.filter(x=>x.done).length/a.length*100):0}}
+function routineStats(key){const a=profile().routine[key]||[];return {all:a.length,done:a.filter(x=>x.status==='done').length,percent:a.length?Math.round(a.filter(x=>x.status==='done').length/a.length*100):0,minutes:a.reduce((s,x)=>s+duration(x.start,x.end),0)}}
+function duration(a,b){if(!a||!b)return 0;let [h,m]=a.split(':').map(Number),[h2,m2]=b.split(':').map(Number);let n=h2*60+m2-(h*60+m);return n<0?n+1440:n}
+function fmtMin(n){const h=Math.floor(n/60),m=n%60;return h?`${h}h ${m?m+'m':''}`:`${m} min`}
+function escapeHTML(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function go(name){document.querySelectorAll('.view').forEach(v=>v.classList.toggle('active',v.id==='view-'+name));document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('active',b.dataset.view===name));renderAll()}
+document.querySelectorAll('nav button').forEach(b=>b.addEventListener('click',()=>go(b.dataset.view)));
+function renderProfiles(){const s=$('profileSelect');s.innerHTML=Object.entries(data.profiles).map(([id,p])=>`<option value="${escapeHTML(id)}">${escapeHTML(p.name)}</option>`).join('');s.value=data.active;$('profileName').value=profile().name}
+$('profileSelect').addEventListener('change',e=>{data.active=e.target.value;save();renderAll()});
+$('addProfile').addEventListener('click',()=>{const name=prompt('New profile name?');if(!name||!name.trim())return;const id=uid();data.profiles[id]={name:name.trim(),reset:'00:00',tasks:{},routine:{},subjects:[],history:{},created:todayISO()};data.active=id;save();renderAll()});
+function renderDashboard(){const key=todayKey(),ts=taskStats(key),rs=routineStats(key);$('todayLabel').textContent=`Calendar date: ${todayISO()} • Study Day: ${key} • Reset: ${profile().reset||'00:00'}`;$('statTasks').textContent=`${ts.done}/${ts.all}`;$('statRoutine').textContent=`${rs.done}/${rs.all}`;$('statStudy').textContent=fmtMin(rs.minutes);$('statDay').textContent='Day '+studyDayNumber(key);$('dashTasks').innerHTML=(profile().tasks[key]||[]).slice(0,6).map(t=>`<div class="rowitem ${t.done?'done':''}"><input class="check" type="checkbox" ${t.done?'checked':''} onchange="toggleTask('${key}','${t.id}',this.checked)"><div class="grow"><strong>${escapeHTML(t.title)}</strong></div></div>`).join('')||'<div class="empty">No tasks yet.</div>';$('dashRoutine').innerHTML=(profile().routine[key]||[]).slice(0,6).map(r=>`<div class="rowitem ${r.status==='done'?'done':''}"><input class="check" type="checkbox" ${r.status==='done'?'checked':''} onchange="toggleRoutine('${key}','${r.id}',this.checked)"><div class="grow"><strong>${escapeHTML(r.title)}</strong><div class="small muted">${r.start}–${r.end}</div></div></div>`).join('')||'<div class="empty">No routine blocks yet.</div>';const total=ts.all+rs.all,done=ts.done+rs.done,p=total?Math.round(done/total*100):0;$('dayProgress').style.width=p+'%';$('progressText').textContent=`${p}% complete (${done} of ${total} task/routine items)`;snapshot(key)}
+function renderRoutine(){ensureDay(studyKey(routineDate));$('routineDate').value=routineDate;const key=studyKey(routineDate),list=profile().routine[key];$('routineList').innerHTML=list.length?list.slice().sort((a,b)=>a.start.localeCompare(b.start)).map(r=>`<div class="rowitem ${r.status==='done'?'done':''}"><input class="check" type="checkbox" ${r.status==='done'?'checked':''} onchange="toggleRoutine('${key}','${r.id}',this.checked)"><div class="grow"><strong>${escapeHTML(r.title)}</strong><div class="small muted">${r.start}–${r.end} · ${fmtMin(duration(r.start,r.end))}${r.notes?' · '+escapeHTML(r.notes):''}</div><div class="small">${r.status==='done'?'Completed':r.status==='pending'?'Incomplete':'Not marked'}</div></div><button class="btn smallbtn secondary" onclick="editRoutine('${key}','${r.id}')">Edit</button><button class="btn smallbtn danger" onclick="deleteRoutine('${key}','${r.id}')">Delete</button></div>`).join(''):'<div class="empty">No routine blocks for this Study Day.</div>';snapshot(key)}
+function renderTodo(){ensureDay(studyKey(todoDate));$('todoDate').value=todoDate;const key=studyKey(todoDate),list=profile().tasks[key],s=taskStats(key);$('todoCount').textContent=s.percent+'%';$('todoProgress').style.width=s.percent+'%';$('todoList').innerHTML=list.length?list.map(t=>`<div class="rowitem ${t.done?'done':''}"><input class="check" type="checkbox" ${t.done?'checked':''} onchange="toggleTask('${key}','${t.id}',this.checked)"><div class="grow"><strong>${escapeHTML(t.title)}</strong>${t.details?`<div class="small muted">${escapeHTML(t.details)}</div>`:''}</div><button class="btn smallbtn secondary" onclick="editTask('${key}','${t.id}')">Edit</button><button class="btn smallbtn danger" onclick="deleteTask('${key}','${t.id}')">Delete</button></div>`).join(''):'<div class="empty">No tasks planned for this Study Day.</div>';snapshot(key)}
+window.toggleTask=(key,id,checked)=>{const t=(profile().tasks[key]||[]).find(x=>x.id===id);if(t)t.done=checked;snapshot(key);renderAll()};
+window.toggleRoutine=(key,id,checked)=>{const r=(profile().routine[key]||[]).find(x=>x.id===id);if(r)r.status=checked?'done':'pending';snapshot(key);renderAll()};
+window.deleteTask=(key,id)=>{if(!confirm('Delete this task?'))return;profile().tasks[key]=(profile().tasks[key]||[]).filter(x=>x.id!==id);snapshot(key);renderAll()};
+window.editTask=(key,id)=>{const t=(profile().tasks[key]||[]).find(x=>x.id===id);if(!t)return;const title=prompt('Edit task title:',t.title);if(title===null)return;if(!title.trim())return alert('Task title cannot be empty.');t.title=title.trim();const details=prompt('Edit details (optional):',t.details||'');if(details!==null)t.details=details;snapshot(key);renderAll()};
+window.deleteRoutine=(key,id)=>{if(!confirm('Delete this routine block?'))return;profile().routine[key]=(profile().routine[key]||[]).filter(x=>x.id!==id);snapshot(key);renderAll()};
+window.editRoutine=(key,id)=>{const r=(profile().routine[key]||[]).find(x=>x.id===id);if(!r)return;const title=prompt('Edit block title:',r.title);if(title===null)return;if(!title.trim())return alert('Title cannot be empty.');r.title=title.trim();const start=prompt('Start time (HH:MM):',r.start);if(start===null)return;if(!/^\d{2}:\d{2}$/.test(start))return alert('Use HH:MM format.');const end=prompt('End time (HH:MM):',r.end);if(end===null)return;if(!/^\d{2}:\d{2}$/.test(end))return alert('Use HH:MM format.');r.start=start;r.end=end;snapshot(key);renderAll()};
+$('todoForm').addEventListener('submit',e=>{e.preventDefault();const key=studyKey(todoDate),title=$('todoTitle').value.trim();if(!title)return;ensureDay(key);profile().tasks[key].push({id:uid(),title,details:$('todoDetails').value.trim(),done:false,created:new Date().toISOString()});$('todoForm').reset();snapshot(key);renderAll()});
+$('routineForm').addEventListener('submit',e=>{e.preventDefault();const key=studyKey(routineDate),title=$('routineTitle').value.trim(),start=$('routineStart').value,end=$('routineEnd').value;if(!title)return;ensureDay(key);profile().routine[key].push({id:uid(),title,start,end,notes:$('routineNotes').value.trim(),status:'pending',created:new Date().toISOString()});$('routineForm').reset();$('routineStart').value='06:00';$('routineEnd').value='07:30';snapshot(key);renderAll()});
+function getDateValue(prefix){return prefix==='routine'?routineDate:prefix==='todo'?todoDate:historyDate}function setDateValue(prefix,value){if(prefix==='routine')routineDate=value;else if(prefix==='todo')todoDate=value;else historyDate=value}function wireDate(prefix,which){const el=$(prefix+'Date');el.value=which;el.addEventListener('change',()=>{if(el.value)setDateValue(prefix,el.value);renderAll()});$(prefix+'Prev').addEventListener('click',()=>{setDateValue(prefix,shiftDate(getDateValue(prefix),-1));renderAll()});$(prefix+'Next').addEventListener('click',()=>{setDateValue(prefix,shiftDate(getDateValue(prefix),1));renderAll()});$(prefix+'Today').addEventListener('click',()=>{setDateValue(prefix,todayISO());renderAll()})}
+wireDate('routine',routineDate);wireDate('todo',todoDate);wireDate('history',historyDate);
+function renderHistory(){const key=studyKey(historyDate);$('historyDate').value=historyDate;const p=profile(),saved=p.history[key];if(!saved){$('historyContent').innerHTML=`<div class="empty">No saved snapshot for Study Day ${key} yet. History is saved as you use the app.</div>`;return}const tasks=saved.tasks||[],routine=saved.routine||[],td=tasks.filter(t=>t.done).length,rd=routine.filter(r=>r.status==='done').length,mins=routine.reduce((s,r)=>s+duration(r.start,r.end),0);$('historyContent').innerHTML=`<h2>Study Day ${saved.dayNumber||studyDayNumber(key)} · ${key}</h2><p>Saved: ${new Date(saved.savedAt).toLocaleString()} · Reset: ${saved.reset||'00:00'}</p><div class="stats"><div class="stat"><strong>${td}/${tasks.length}</strong><span>Tasks completed</span></div><div class="stat"><strong>${rd}/${routine.length}</strong><span>Routine completed</span></div><div class="stat"><strong>${fmtMin(mins)}</strong><span>Planned routine time</span></div><div class="stat"><strong>${tasks.length+routine.length}</strong><span>Total items</span></div></div><h3>To-do</h3>${tasks.length?tasks.map(t=>`<div class="rowitem"><span class="pill ${t.done?'done':''}">${t.done?'Completed':t.done===false?'Incomplete':'Not marked'}</span><div class="grow"><strong>${escapeHTML(t.title)}</strong>${t.details?`<div class="small muted">${escapeHTML(t.details)}</div>`:''}</div></div>`).join(''):'<p>No tasks saved.</p>'}<h3 style="margin-top:18px">Routine blocks</h3>${routine.length?routine.map(r=>`<div class="rowitem"><span class="pill ${r.status==='done'?'done':''}">${r.status==='done'?'Completed':r.status==='pending'?'Incomplete':'Not marked'}</span><div class="grow"><strong>${escapeHTML(r.title)}</strong><div class="small muted">${r.start||'--:--'}–${r.end||'--:--'} · ${fmtMin(duration(r.start,r.end))}</div>${r.notes?`<div class="small muted">${escapeHTML(r.notes)}</div>`:''}</div></div>`).join(''):'<p>No routine blocks saved.</p>'}<h3 style="margin-top:18px">Subjects snapshot</h3>${(saved.subjects||[]).map(s=>`<p><strong>${escapeHTML(s.name)}</strong>: ${(s.chapters||[]).map(c=>escapeHTML(c.name)).join(', ')||'No chapters'}</p>`).join('')||'<p>No subjects saved.</p>'}`}
+function renderSubjects(){const subjects=profile().subjects||[];$('subjectList').innerHTML=subjects.length?subjects.map(s=>`<div class="rowitem"><div class="grow"><strong>${escapeHTML(s.name)}</strong></div><button class="btn smallbtn danger" onclick="deleteSubject('${s.id}')">Delete</button></div>`).join(''):'<div class="empty">Add a subject to begin.</div>';$('chapterSubject').innerHTML=subjects.map(s=>`<option value="${s.id}">${escapeHTML(s.name)}</option>`).join('');renderChapters()}
+function renderChapters(){const s=profile().subjects.find(x=>x.id===$('chapterSubject').value);$('chapterList').innerHTML=s&&s.chapters.length?s.chapters.map(c=>`<div class="rowitem"><div class="grow">${escapeHTML(c.name)}</div><button class="btn smallbtn danger" onclick="deleteChapter('${s.id}','${c.id}')">Delete</button></div>`).join(''):'<div class="empty">No chapters listed.</div>'}
+$('subjectForm').addEventListener('submit',e=>{e.preventDefault();const name=$('subjectName').value.trim();if(!name)return;profile().subjects.push({id:uid(),name,chapters:[]});$('subjectForm').reset();save();renderSubjects();snapshot(todayKey())});
+$('chapterSubject').addEventListener('change',renderChapters);
+$('chapterForm').addEventListener('submit',e=>{e.preventDefault();const s=profile().subjects.find(x=>x.id===$('chapterSubject').value),name=$('chapterName').value.trim();if(!s||!name)return;s.chapters.push({id:uid(),name});$('chapterForm').reset();save();renderSubjects();snapshot(todayKey())});
+window.deleteSubject=id=>{if(!confirm('Delete this subject and its chapter list?'))return;profile().subjects=profile().subjects.filter(s=>s.id!==id);save();renderSubjects();snapshot(todayKey())};
+window.deleteChapter=(sid,cid)=>{const s=profile().subjects.find(x=>x.id===sid);if(s)s.chapters=s.chapters.filter(c=>c.id!==cid);save();renderSubjects();snapshot(todayKey())};
+$('saveReset').addEventListener('click',()=>{profile().reset=$('resetTime').value||'00:00';save();alert('Reset time saved. Study Day mapping is now updated. Existing snapshots are preserved.');renderAll()});
+$('renameProfile').addEventListener('click',()=>{const n=$('profileName').value.trim();if(!n)return alert('Enter a profile name.');profile().name=n;save();renderProfiles();});
+$('deleteProfile').addEventListener('click',()=>{if(Object.keys(data.profiles).length===1)return alert('Keep at least one profile.');if(!confirm('Delete this profile and all its local data?'))return;delete data.profiles[data.active];data.active=Object.keys(data.profiles)[0];save();renderAll()});
+$('exportBackup').addEventListener('click',()=>{const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='study-command-center-backup-'+todayISO()+'.json';a.click();URL.revokeObjectURL(url);$('backupMsg').textContent='Backup download started.'});
+$('importFile').addEventListener('change',async e=>{const f=e.target.files[0];if(!f)return;try{const obj=JSON.parse(await f.text());if(!obj.profiles||!obj.active||!obj.profiles[obj.active])throw new Error('Invalid backup structure');if(!confirm('Restore will replace current app data in this browser. Continue?'))return;data=obj;save();renderAll();$('backupMsg').textContent='Backup restored.'}catch(err){$('backupMsg').textContent='Could not restore: '+err.message}e.target.value=''});
+function renderAll(){renderProfiles();$('resetTime').value=profile().reset||'00:00';renderDashboard();renderRoutine();renderTodo();renderHistory();renderSubjects()}
+renderAll();
+</script>
+</body>
+</html>
